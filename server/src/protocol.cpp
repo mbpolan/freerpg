@@ -19,14 +19,58 @@
  ***************************************************************************/
 // protocol.cpp: definition of the Protocol class.
 
+#include "packet.h"
+#include "protspec.h"
 #include "protocol.h"
 
 Protocol::Protocol(int socket) {
 	m_Socket=socket;
 }
 
-bool Protocol::authenticate() {
+bool Protocol::verify() {
+	// first verify the client's protocol version
+	Packet p, r;
+	p.read(m_Socket);
+
+	char id=p.byte();
+	char version=p.byte();
+	if (id!=ProtSpec::ID_PROTVER || version!=ProtSpec::PROT_VERSION) {
+		std::cout << "Protver: " << std::ios::hex << version << std::ios::dec << ", but expected " << ProtSpec::PROT_VERSION << "\n";
+
+		r.addByte(ProtSpec::ID_PROTVER);
+		r.addByte(ProtSpec::RES_FAIL);
+		r.write(m_Socket);
+
+		return false;
+	}
+
+	r.addByte(ProtSpec::ID_PROTVER);
+	r.addByte(ProtSpec::RES_OK);
+	r.write(m_Socket);
+
 	return true;
+}
+
+std::pair<std::string, std::string> Protocol::getCredentials() {
+	Packet p;
+	p.read(m_Socket);
+
+	char id=p.byte();
+	if (id!=ProtSpec::ID_LOGIN)
+		return std::make_pair("", "");
+
+	std::string username=p.string();
+	std::string password=p.string();
+
+	return std::make_pair(username, password);
+}
+
+void Protocol::sendLoginResult(bool ok) {
+	Packet p;
+
+	p.addByte(ProtSpec::ID_LOGIN);
+	p.addByte(ok ? ProtSpec::RES_OK : ProtSpec::RES_FAIL);
+	p.write(m_Socket);
 }
 
 void Protocol::loop() {

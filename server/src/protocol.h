@@ -22,12 +22,17 @@
 #ifndef PROTOCOL_H
 #define PROTOCOL_H
 
+#include <iostream>
+
 class Protocol {
 
  public:
 	Protocol(int socket);
 
-	bool authenticate();
+	bool verify();
+	std::pair<std::string, std::string> getCredentials();
+	void sendLoginResult(bool ok);
+
 	void loop();
 
  private:

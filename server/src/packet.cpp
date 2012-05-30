@@ -107,7 +107,7 @@ bool Packet::write(int fd) {
 	m_Buffer[1]=(m_Size >> 8);
 	
 	int sent=0, remaining=m_Size+2;
-	int n;
+	int n=0;
 	while(sent<m_Size) {
 		if ((n=send(fd, m_Buffer+sent, remaining, 0))==-1)
 			return false;
@@ -134,7 +134,9 @@ Packet::Result Packet::read(int fd) {
 		std::cout << "read " << bytes << " was expecting " << size << std::endl;
 		return DataCorrupt;
 	}
-	
+
+	std::cout << "Size: " << size << "\n";
+
 	m_Size=size;
 	m_Pos=2;
 	

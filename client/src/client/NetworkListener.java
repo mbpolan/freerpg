@@ -17,60 +17,16 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// server.cpp: entry point into the server program
+// NetworkListener.java: interface for network callbacks.
 
-#include <boost/thread.hpp>
-#include <iostream>
+package client;
 
-#include "configfile.h"
-#include "protocol.h"
-#include "serversocket.h"
-
-void connectionHandler(ServerSocket::ClientData *client) {
-	int socket=client->getSocket();
-
-	// first verify the client's protocol version
-	Protocol *p=new Protocol(socket);
-	if (p->verify()) {
-		std::pair<std::string, std::string> login=p->getCredentials();
-		std::cout << "LOGIN: " << login.first << "/" << login.second << "\n";
-
-		// TODO: actual account system
-		if (login.first!="test" || login.second!="user") {
-			p->sendLoginResult(false);
-		}
-
-		else {
-			p->sendLoginResult(true);
-			p->loop();
-		}
-	}
-
-	close(socket);
-
-	delete p;
-	delete client;
-}
-
-int main(int argc, char *argv[]) {
-	ConfigFile *cfg=ConfigFile::instance();
-	ServerSocket socket(cfg->getIPAddress(), cfg->getPort());
-
-	try {
-		socket.bind();
-		socket.listen();
-
-		std::cout << "FreeRPG server v1.0 running...\n";
-
-		while(1) {
-			ServerSocket::ClientData *client=socket.accept();
-			boost::thread thread(connectionHandler, client);
-		}
-	}
-
-	catch (const std::runtime_error &e) {
-		std::cout << e.what() << "\n";
-	}
-
-	return 0;
+public interface NetworkListener {
+	
+	void onConnected();
+	void onDisconnected();
+	void onError(String msg);
+	
+	void onVerification(boolean success);
+	void onAuthentication(boolean success);
 }

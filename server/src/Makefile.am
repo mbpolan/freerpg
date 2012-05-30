@@ -3,6 +3,7 @@ server_SOURCES = \
 	configfile.cpp configfile.h \
 	packet.cpp packet.h \
 	protocol.cpp protocol.h \
+	protspec.h \
 	server.cpp \
 	serversocket.cpp serversocket.h \
 	usermanager.cpp usermanager.h

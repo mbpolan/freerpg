@@ -17,60 +17,21 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// server.cpp: entry point into the server program
+// protspec.h: protocol definition.
 
-#include <boost/thread.hpp>
-#include <iostream>
+#ifndef PROTSPEC_H
+#define PROTSPEC_H
 
-#include "configfile.h"
-#include "protocol.h"
-#include "serversocket.h"
+namespace ProtSpec {
 
-void connectionHandler(ServerSocket::ClientData *client) {
-	int socket=client->getSocket();
+const char PROT_VERSION=		0x01;
 
-	// first verify the client's protocol version
-	Protocol *p=new Protocol(socket);
-	if (p->verify()) {
-		std::pair<std::string, std::string> login=p->getCredentials();
-		std::cout << "LOGIN: " << login.first << "/" << login.second << "\n";
+const char RES_FAIL=			0x00;
+const char RES_OK=				0x01;
 
-		// TODO: actual account system
-		if (login.first!="test" || login.second!="user") {
-			p->sendLoginResult(false);
-		}
+const char ID_PROTVER=			0xA0;
+const char ID_LOGIN=			0xA1;
 
-		else {
-			p->sendLoginResult(true);
-			p->loop();
-		}
-	}
-
-	close(socket);
-
-	delete p;
-	delete client;
 }
 
-int main(int argc, char *argv[]) {
-	ConfigFile *cfg=ConfigFile::instance();
-	ServerSocket socket(cfg->getIPAddress(), cfg->getPort());
-
-	try {
-		socket.bind();
-		socket.listen();
-
-		std::cout << "FreeRPG server v1.0 running...\n";
-
-		while(1) {
-			ServerSocket::ClientData *client=socket.accept();
-			boost::thread thread(connectionHandler, client);
-		}
-	}
-
-	catch (const std::runtime_error &e) {
-		std::cout << e.what() << "\n";
-	}
-
-	return 0;
-}
+#endif

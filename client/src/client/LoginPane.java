@@ -28,7 +28,6 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
-import java.net.Socket;
 import java.net.UnknownHostException;
 
 import javax.swing.BorderFactory;
@@ -42,7 +41,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-public class LoginPane extends JPanel {
+public class LoginPane extends JPanel implements NetworkListener {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -59,6 +58,50 @@ public class LoginPane extends JPanel {
 		setOpaque(false);
 		bg=new ImageIcon(LoginPane.class.getResource("bg.png"));
 	}
+
+	@Override
+	public void onConnected() {
+		statusBar.setText("Connected, authenticating...");
+		
+		// send the protocol version
+		NetworkManager.getInstance().sendProtocolVersion();
+	}
+
+	@Override
+	public void onDisconnected() {
+		statusBar.setText("Disconnected from server");
+	}
+
+	@Override
+	public void onError(String msg) {
+	}
+	
+	@Override
+	public void onVerification(boolean success) {
+		NetworkManager mgr=NetworkManager.getInstance();
+		
+		if (success) {
+			statusBar.setText("Protocol ok");
+			mgr.sendLogin(userEdit.getText(), passEdit.getText());
+		}
+		
+		else
+			mgr.terminate();
+	}
+	
+	@Override
+	public void onAuthentication(boolean success) {
+		NetworkManager mgr=NetworkManager.getInstance();
+		
+		if (success) {
+			statusBar.setText("Login ok");
+		}
+		
+		else {
+			JOptionPane.showMessageDialog(this, "Login was invalid");
+			mgr.terminate();
+		}
+	}
 	
 	@Override
 	protected void paintComponent(Graphics g) {
@@ -67,36 +110,36 @@ public class LoginPane extends JPanel {
 	}
 	
 	private void onLogin() {
+		String host;
+		int port;
+
+		String[] comp=serverEdit.getText().split(":");
+		if (comp==null) {
+			JOptionPane.showMessageDialog(this, "Server address must be in form \"xxx.xxx.xxx.xxx:yyyy\"");
+			return;
+		}
+
+		host=comp[0];
+		port=Integer.parseInt(comp[1]);
+
+		statusBar.setText("Connecting to server...");
+		
 		try {
-			String host;
-			int port;
+			NetworkManager mgr=new NetworkManager(host, port);
+			NetworkManager.setInstance(mgr);
+			mgr.setListener(this);
 			
-			String[] comp=serverEdit.getText().split(":");
-			if (comp==null) {
-				JOptionPane.showMessageDialog(this, "Server address must be in form \"xxx.xxx.xxx.xxx:yyyy\"");
-				return;
-			}
-			
-			host=comp[0];
-			port=Integer.parseInt(comp[1]);
-			
-			statusBar.setText("Connecting to server...");
-			
-			// attempt to connect to the server
-			Socket sock=new Socket(host, port);
-			
-			statusBar.setText("Connected, authenticating");
+			mgr.start();
+		} 
+		
+		catch (UnknownHostException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage());
+		} 
+		
+		catch (IOException e) {
+			JOptionPane.showMessageDialog(this, e.getMessage());
 		}
 		
-		catch (UnknownHostException ex) {
-			JOptionPane.showMessageDialog(this, ex.getMessage());
-			statusBar.setText("Unable to login to server");
-		}
-		
-		catch (IOException ex) {
-			JOptionPane.showMessageDialog(this, ex.getMessage());
-			statusBar.setText("Unable to login to server");
-		}
 	}
 	
 	private void create() {

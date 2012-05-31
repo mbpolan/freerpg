@@ -38,9 +38,18 @@
          <widget class="TileEditor" name="editor" native="true">
           <property name="minimumSize">
            <size>
-            <width>32</width>
-            <height>32</height>
+            <width>256</width>
+            <height>256</height>
            </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>256</width>
+            <height>256</height>
+           </size>
+          </property>
+          <property name="layoutDirection">
+           <enum>Qt::LeftToRight</enum>
           </property>
          </widget>
         </item>

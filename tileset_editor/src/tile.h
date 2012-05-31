@@ -17,37 +17,58 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// tileeditor.h: declaration of the TileEditor class.
+// tile.h: declaration of the Tile class.
 
-#ifndef TILEEDITOR_H
-#define TILEEDITOR_H
+#ifndef TILE_H
+#define TILE_H
 
-#include <QWidget>
+#include <QObject>
+#include <QPixmap>
 
-#include "tile.h"
-
-class TileEditor: public QWidget {
+class Tile: public QObject {
 	Q_OBJECT
+
  public:
-	TileEditor(QWidget *parent=NULL);
+	enum Bit {
+		CLOSED=	0,
+		OPEN=	1,
+		OVERDRAW=	2
+	};
 
-	void setCurrentBit(const Tile::Bit &bit);
-	void setGrid(int lines);
+	typedef QVector<QVector<Tile::Bit> > BitMap;
 
-	void setTile(Tile *tile);
-	Tile* getTile() const;
+ public:
+	explicit Tile(int id, int divs, const QPixmap &img, QObject *parent=NULL);
 
-	void fill();
+	int getId() const;
 
- protected:
-	void paintEvent(QPaintEvent *e);
-	void mousePressEvent(QMouseEvent *e);
+	void setBit(int x, int y, const Bit &b);
+	BitMap getBitMap() const;
+
+	QPixmap getImage() const;
+
+	void setIsAnimated(bool yes);
+	bool isAnimated() const;
+
+	void setNextFrame(int id);
+	int getNextFrame() const;
+
+	void setDelay(int delay);
+	int getDelay() const;
+
+	void setAlpha(char alpha);
+	char getAlpha() const;
 
  private:
-	Tile *m_Tile;
-	Tile::Bit m_CurBit;
+	int m_Id;
+	BitMap m_BitMap;
 	QPixmap m_Image;
-	int m_Lines;
+
+	bool m_Animated;
+	int m_NextFrame;
+	int m_Delay;
+
+	char m_Alpha;
 
 };
 

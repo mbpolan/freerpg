@@ -17,38 +17,59 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// tileeditor.h: declaration of the TileEditor class.
+// tileset.cpp: definition of the Tileset class.
 
-#ifndef TILEEDITOR_H
-#define TILEEDITOR_H
+#include "tileset.h"
 
-#include <QWidget>
+Tileset::Tileset(int tileSize, int divs, QObject *parent): QObject(parent) {
+	m_Name="";
+	m_Author="";
+	m_TileSize=tileSize;
+	m_Divs=divs;
+}
 
-#include "tile.h"
+void Tileset::setName(const QString &name) {
+	m_Name=name;
+}
 
-class TileEditor: public QWidget {
-	Q_OBJECT
- public:
-	TileEditor(QWidget *parent=NULL);
+QString Tileset::getName() const {
+	return m_Name;
+}
 
-	void setCurrentBit(const Tile::Bit &bit);
-	void setGrid(int lines);
+void Tileset::setAuthor(const QString &author) {
+	m_Author=author;
+}
 
-	void setTile(Tile *tile);
-	Tile* getTile() const;
+QString Tileset::getAuthor() const {
+	return m_Author;
+}
 
-	void fill();
+int Tileset::getTileSize() const {
+	return m_TileSize;
+}
 
- protected:
-	void paintEvent(QPaintEvent *e);
-	void mousePressEvent(QMouseEvent *e);
+int Tileset::getDivisions() const {
+	return m_Divs;
+}
 
- private:
-	Tile *m_Tile;
-	Tile::Bit m_CurBit;
-	QPixmap m_Image;
-	int m_Lines;
+void Tileset::addTile(Tile *tile) {
+	m_Tiles.push_back(tile);
+}
 
-};
+void Tileset::removeTile(Tile *tile) {
+	for (int i=0; i<m_Tiles.size(); i++) {
+		if (m_Tiles[i]==tile) {
+			m_Tiles.remove(i);
+			return;
+		}
+	}
+}
 
-#endif
+Tile* Tileset::getTileById(int id) const {
+	for (int i=0; i<m_Tiles.size(); i++) {
+		if (m_Tiles[i]->getId()==id)
+		    return m_Tiles[i];
+	}
+
+	return NULL;
+}

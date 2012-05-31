@@ -16,12 +16,16 @@ SOURCES += \
     src/mainwindow.cpp \
     src/main.cpp \
     src/tileeditor.cpp \
-    src/newdialog.cpp
+    src/newdialog.cpp \
+    src/tileset.cpp \
+    src/tile.cpp
 
 HEADERS  += \
     src/mainwindow.h \
     src/tileeditor.h \
-    src/newdialog.h
+    src/newdialog.h \
+    src/tileset.h \
+    src/tile.h
 
 FORMS += \
     src/ui/mainwindow.ui \

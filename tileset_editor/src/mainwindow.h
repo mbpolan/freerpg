@@ -24,6 +24,8 @@
 
 #include <QtGui/QMainWindow>
 
+#include "tileset.h"
+
 namespace Ui {
 class MainWindow;
 }
@@ -48,8 +50,17 @@ class MainWindow: public QMainWindow {
 
 	void onHelpAbout();
 
+	void onToolToggled(bool);
+	void onAnimToggled(bool yes);
+	void onAlphaChanged(int value);
+	void onTileSelected();
+
  private:
+	int findRandomId() const;
+
 	Ui::MainWindow *ui;
+
+	Tileset *m_Tileset;
 };
 
 #endif

@@ -17,38 +17,71 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// tileeditor.h: declaration of the TileEditor class.
-
-#ifndef TILEEDITOR_H
-#define TILEEDITOR_H
-
-#include <QWidget>
+// tile.cpp: definition of the Tile class.
 
 #include "tile.h"
 
-class TileEditor: public QWidget {
-	Q_OBJECT
- public:
-	TileEditor(QWidget *parent=NULL);
+Tile::Tile(int id, int divs, const QPixmap &img, QObject *parent): QObject(parent) {
+	m_Id=id;
+	m_Image=img;
+	m_Animated=false;
+	m_NextFrame=0;
+	m_Delay=0;
+	m_Alpha=255;
 
-	void setCurrentBit(const Tile::Bit &bit);
-	void setGrid(int lines);
+	m_BitMap.resize(divs+1);
+	for (int i=0; i<m_BitMap.size(); i++) {
+		m_BitMap[i].resize(divs+1);
 
-	void setTile(Tile *tile);
-	Tile* getTile() const;
+		for (int j=0; j<m_BitMap.size(); j++)
+		    m_BitMap[i][j]=Tile::OPEN;
+	}
+}
 
-	void fill();
+int Tile::getId() const {
+	return m_Id;
+}
 
- protected:
-	void paintEvent(QPaintEvent *e);
-	void mousePressEvent(QMouseEvent *e);
+void Tile::setBit(int x, int y, const Bit &b) {
+	m_BitMap[x][y]=b;
+}
 
- private:
-	Tile *m_Tile;
-	Tile::Bit m_CurBit;
-	QPixmap m_Image;
-	int m_Lines;
+Tile::BitMap Tile::getBitMap() const {
+	return m_BitMap;
+}
 
-};
+QPixmap Tile::getImage() const {
+	return m_Image;
+}
 
-#endif
+void Tile::setIsAnimated(bool yes) {
+	m_Animated=yes;
+}
+
+bool Tile::isAnimated() const {
+	return m_Animated;
+}
+
+void Tile::setNextFrame(int id) {
+	m_NextFrame=id;
+}
+
+int Tile::getNextFrame() const {
+	return m_NextFrame;
+}
+
+void Tile::setDelay(int delay) {
+	m_Delay=delay;
+}
+
+int Tile::getDelay() const {
+	return m_Delay;
+}
+
+void Tile::setAlpha(char alpha) {
+	m_Alpha=alpha;
+}
+
+char Tile::getAlpha() const {
+	return m_Alpha;
+}

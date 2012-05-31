@@ -19,6 +19,8 @@
  ***************************************************************************/
 // mainwindow.cpp: definition of the MainWindow class.
 
+#include <QFileDialog>
+
 #include "mainwindow.h"
 #include "newdialog.h"
 
@@ -41,6 +43,15 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent) {
 
 	connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(onHelpAbout()));
 
+	connect(ui->tileTree, SIGNAL(itemSelectionChanged()), this, SLOT(onTileSelected()));
+
+	connect(ui->openRB, SIGNAL(toggled(bool)), this, SLOT(onToolToggled(bool)));
+	connect(ui->blockRB, SIGNAL(toggled(bool)), this, SLOT(onToolToggled(bool)));
+	connect(ui->overdrawRB, SIGNAL(toggled(bool)), this, SLOT(onToolToggled(bool)));
+
+	connect(ui->animEnabledCB, SIGNAL(toggled(bool)), this, SLOT(onAnimToggled(bool)));
+	connect(ui->alphaSB, SIGNAL(valueChanged(int)), this, SLOT(onAlphaChanged(int)));
+
 	centralWidget()->setEnabled(false);
 }
 
@@ -54,6 +65,16 @@ void MainWindow::onFileNew() {
 
 		centralWidget()->setEnabled(true);
 		setWindowTitle(QString("FreeRPG Tileset Editor - ")+name);
+
+		if (m_Tileset)
+		    delete m_Tileset;
+
+		// allocate a new tileset
+		m_Tileset=new Tileset(diag.getTileSize(), diag.getSubdivisions(), this);
+		m_Tileset->setName(name);
+
+		// update the editor's grid
+		ui->editor->setGrid(diag.getSubdivisions());
 	}
 }
 
@@ -74,7 +95,30 @@ void MainWindow::onFileQuit() {
 }
 
 void MainWindow::onTileAdd() {
+	QStringList lst=QFileDialog::getOpenFileNames(this, tr("Open Image"), "", tr("Images (*.png)"));
+	QStringList failures;
 
+	for (int i=0; i<lst.size(); i++) {
+		QString file=lst[i];
+
+		// load the image first
+		QPixmap pixmap(file);
+		if (pixmap.isNull() || pixmap.width()!=m_Tileset->getTileSize() ||
+		    pixmap.height()!=m_Tileset->getTileSize())
+		    failures.push_back(file);
+
+		// create a new tile for this image
+		int id=findRandomId();
+		Tile *t=new Tile(id, m_Tileset->getDivisions(), pixmap, m_Tileset);
+		m_Tileset->addTile(t);
+
+		// add it to the tree as well
+		QTreeWidgetItem *item=new QTreeWidgetItem(ui->tileTree);
+		item->setText(0, QString("%1").arg(id));
+		item->setIcon(1, QIcon(pixmap));
+
+		ui->tileTree->addTopLevelItem(item);
+	}
 }
 
 void MainWindow::onTileRemove() {
@@ -82,9 +126,67 @@ void MainWindow::onTileRemove() {
 }
 
 void MainWindow::onTileApplyAll() {
-
+	ui->editor->fill();
 }
 
 void MainWindow::onHelpAbout() {
 
+}
+
+void MainWindow::onToolToggled(bool) {
+	if (ui->openRB->isChecked())
+		ui->editor->setCurrentBit(Tile::OPEN);
+	else if (ui->blockRB->isChecked())
+		ui->editor->setCurrentBit(Tile::CLOSED);
+	else
+		ui->editor->setCurrentBit(Tile::OVERDRAW);
+}
+
+void MainWindow::onAnimToggled(bool yes) {
+	Tile *t=ui->editor->getTile();
+	if (t) {
+		t->setIsAnimated(yes);
+		t->setNextFrame(ui->nextFrameSB->value());
+		t->setDelay(ui->delaySB->value());
+	}
+}
+
+void MainWindow::onAlphaChanged(int value) {
+	Tile *t=ui->editor->getTile();
+	if (t)
+		t->setAlpha((char) ui->alphaSB->value());
+}
+
+void MainWindow::onTileSelected() {
+	QTreeWidgetItem *item=ui->tileTree->currentItem();
+	if (item) {
+		int id=item->text(0).toInt();
+		Tile *t=m_Tileset->getTileById(id);
+
+		if (t) {
+			ui->editor->setTile(t);
+			ui->animEnabledCB->setChecked(t->isAnimated());
+
+			if (t->isAnimated()) {
+				ui->nextFrameSB->setEnabled(true);
+				ui->nextFrameSB->setValue(t->getNextFrame());
+
+				ui->delaySB->setEnabled(true);
+				ui->delaySB->setValue(t->getDelay());
+			}
+
+			else {
+				ui->nextFrameSB->setEnabled(false);
+				ui->delaySB->setEnabled(false);
+			}
+		}
+	}
+}
+
+int MainWindow::findRandomId() const {
+	int id=0;
+	while(m_Tileset->getTileById(id))
+	    id++;
+
+	return id;
 }

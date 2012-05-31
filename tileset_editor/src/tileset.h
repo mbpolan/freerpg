@@ -17,38 +17,42 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// tileeditor.h: declaration of the TileEditor class.
+// tileset.h: declaration of the Tileset class.
 
-#ifndef TILEEDITOR_H
-#define TILEEDITOR_H
+#ifndef TILESET_H
+#define TILESET_H
 
-#include <QWidget>
+#include <QObject>
+#include <QVector>
 
 #include "tile.h"
 
-class TileEditor: public QWidget {
+class Tileset: public QObject {
 	Q_OBJECT
  public:
-	TileEditor(QWidget *parent=NULL);
+	explicit Tileset(int tileSize, int divs, QObject *parent=NULL);
 
-	void setCurrentBit(const Tile::Bit &bit);
-	void setGrid(int lines);
+	void setName(const QString &name);
+	QString getName() const;
 
-	void setTile(Tile *tile);
-	Tile* getTile() const;
+	void setAuthor(const QString &author);
+	QString getAuthor() const;
 
-	void fill();
+	int getTileSize() const;
+	int getDivisions() const;
 
- protected:
-	void paintEvent(QPaintEvent *e);
-	void mousePressEvent(QMouseEvent *e);
+	void addTile(Tile *tile);
+	void removeTile(Tile *tile);
+	Tile* getTileById(int id) const;
 
  private:
-	Tile *m_Tile;
-	Tile::Bit m_CurBit;
-	QPixmap m_Image;
-	int m_Lines;
+	QString m_Name;
+	QString m_Author;
 
+	int m_TileSize;
+	int m_Divs;
+
+	QVector<Tile*> m_Tiles;
 };
 
 #endif

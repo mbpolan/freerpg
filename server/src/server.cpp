@@ -30,6 +30,7 @@
 
 void connectionHandler(ServerSocket::ClientData *client) {
 	int socket=client->getSocket();
+	std::cout << "Connection from " << client->getIP() << " on " << socket << "\n";
 
 	// first verify the client's protocol version
 	Protocol *p=new Protocol(socket);
@@ -63,6 +64,8 @@ void connectionHandler(ServerSocket::ClientData *client) {
 
 	delete p;
 	delete client;
+
+	std::cout << "Disconnected client\n";
 }
 
 int main(int argc, char *argv[]) {

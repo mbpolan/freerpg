@@ -129,6 +129,9 @@ public class Packet {
 		int read=0;
 		do {
 			int n=in.read(msg, read, 2);
+			if (n==-1)
+				throw new IOException("End of stream");
+			
 			read+=n;
 		}
 		while(read<2);
@@ -148,6 +151,9 @@ public class Packet {
 		read=0;
 		do {
 			int n=in.read(buffer, read+2, size-read);
+			if (n==-1)
+				throw new IOException("End of stream");
+			
 			read+=n;
 		} while(read<size);
 	}

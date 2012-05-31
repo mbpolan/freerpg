@@ -27,6 +27,8 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.SwingUtilities;
+
 public class NetworkManager extends Thread {
 	
 	private static NetworkManager instance=null;
@@ -145,28 +147,52 @@ public class NetworkManager extends Thread {
 	private void handlePacket(Packet p) {
 		// get the header byte
 		byte header=p.getByte();
+		System.out.println(""+(int) header);
+		
 		switch(header) {
 			
 			// protocol version verification
 			case ProtSpec.ID_PROTVER: {
-				byte result=p.getByte();
-				listener.onVerification(result==ProtSpec.RES_OK);
+				final byte result=p.getByte();
+				
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						listener.onVerification(result==ProtSpec.RES_OK);
+					}
+				});
 			} break;
 			
 			// authentication result
 			case ProtSpec.ID_LOGIN: {
-				byte result=p.getByte();
-				listener.onAuthentication(result==ProtSpec.RES_OK);
+				final byte result=p.getByte();
+				
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						listener.onAuthentication(result==ProtSpec.RES_OK);
+					}
+				});
+				
 			} break;
 			
 			case ProtSpec.ID_CHARLIST: {
 				short count=p.getUint16();
-				List<String> lst=new ArrayList<String>();
+				final List<String> lst=new ArrayList<String>();
 				
 				for (int i=0; i<count; i++)
 					lst.add(p.getString());
 				
-				listener.onCharacterList(lst);
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						listener.onCharacterList(lst);
+					}
+				});
+				
 			} break;
 			
 			default: {

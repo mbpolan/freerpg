@@ -110,10 +110,13 @@ void ServerSocket::listen() throw(SocketError) {
 ServerSocket::ClientData* ServerSocket::accept() throw(SocketError) {
 	struct sockaddr_in client;
 	socklen_t len=sizeof(client);
+	char ip[INET6_ADDRSTRLEN];
 
 	int sock;
 	if ((sock=::accept(m_Socket, (struct sockaddr*) &client, &len))<0)
 		throw SocketError("Accept failed");
 
-	return new ClientData("...", sock);
+	inet_ntop(AF_INET, &client.sin_addr, ip, sizeof(ip));
+
+	return new ClientData(std::string(ip), sock);
 }

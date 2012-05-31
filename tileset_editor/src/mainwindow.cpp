@@ -32,6 +32,8 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent) {
 	ui=new Ui::MainWindow;
 	ui->setupUi(this);
 	m_Tileset=NULL;
+	m_Modified=false;
+	m_SavePath=QString::null;
 
 	// connect actions
 	connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(onFileNew()));
@@ -82,6 +84,8 @@ void MainWindow::onFileNew() {
 
 		// update the editor's grid
 		ui->editor->setGrid(diag.getSubdivisions());
+
+		m_Modified=true;
 	}
 }
 
@@ -111,11 +115,24 @@ void MainWindow::onFileOpen() {
 		}
 
 		centralWidget()->setEnabled(true);
+		m_Modified=true;
+		m_SavePath=path;
 	}
 
 }
 
 void MainWindow::onFileSave() {
+	if (!m_SavePath.isNull()) {
+		IOTileset io(m_Tileset);
+		if (!io.save(m_SavePath))
+			QMessageBox::information(this, tr("Error"), tr("Unable to save tileset!"), QMessageBox::Ok);
+	}
+
+	else
+		onFileSaveAs();
+}
+
+void MainWindow::onFileSaveAs() {
 	QString path=QFileDialog::getSaveFileName(this, tr("Save Tileset"), "", tr("Tilesets (*.tls)"));
 	if (path.isNull() || path.isEmpty())
 		return;
@@ -123,14 +140,21 @@ void MainWindow::onFileSave() {
 	IOTileset io(m_Tileset);
 	if (!io.save(path))
 		QMessageBox::information(this, tr("Error"), tr("Unable to save tileset!"), QMessageBox::Ok);
-}
 
-void MainWindow::onFileSaveAs() {
-
+	m_Modified=false;
+	m_SavePath=path;
 }
 
 void MainWindow::onFileQuit() {
+	if (m_Tileset && m_Modified) {
+		int res=QMessageBox::question(this, tr("Save"),
+								tr("Your tileset has been modified. Would you like to save?"),
+								QMessageBox::Yes, QMessageBox::No);
+		if (res==QMessageBox::Yes)
+			onFileSave();
+	}
 
+	qApp->quit();
 }
 
 void MainWindow::onTileAdd() {
@@ -157,15 +181,26 @@ void MainWindow::onTileAdd() {
 		item->setIcon(1, QIcon(pixmap));
 
 		ui->tileTree->addTopLevelItem(item);
+		m_Modified=true;
 	}
 }
 
 void MainWindow::onTileRemove() {
+	QTreeWidgetItem *item=ui->tileTree->currentItem();
+	if (item) {
+		int id=item->text(0).toInt();
+		Tile *t=m_Tileset->getTileById(id);
 
+		m_Tileset->removeTile(t);
+		ui->tileTree->takeTopLevelItem(ui->tileTree->indexOfTopLevelItem(item));
+
+		m_Modified=true;
+	}
 }
 
 void MainWindow::onTileApplyAll() {
 	ui->editor->fill();
+	m_Modified=true;
 }
 
 void MainWindow::onHelpAbout() {
@@ -187,13 +222,17 @@ void MainWindow::onAnimToggled(bool yes) {
 		t->setIsAnimated(yes);
 		t->setNextFrame(ui->nextFrameSB->value());
 		t->setDelay(ui->delaySB->value());
+
+		m_Modified=true;
 	}
 }
 
 void MainWindow::onAlphaChanged(int value) {
 	Tile *t=ui->editor->getTile();
-	if (t)
+	if (t) {
 		t->setAlpha((char) ui->alphaSB->value());
+		m_Modified=true;
+	}
 }
 
 void MainWindow::onTileSelected() {

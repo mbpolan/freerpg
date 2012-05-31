@@ -60,6 +60,8 @@ class MainWindow: public QMainWindow {
 
 	Ui::MainWindow *ui;
 
+	bool m_Modified;
+	QString m_SavePath;
 	Tileset *m_Tileset;
 };
 

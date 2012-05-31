@@ -17,45 +17,27 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// tileset.h: declaration of the Tileset class.
+// iotileset.h: declaration of IOTileset class.
 
-#ifndef TILESET_H
-#define TILESET_H
+#ifndef IOTILESET_H
+#define IOTILESET_H
 
 #include <QObject>
-#include <QVector>
 
-#include "tile.h"
+#include "tileset.h"
 
-class Tileset: public QObject {
+class IOTileset: public QObject {
 	Q_OBJECT
  public:
-	explicit Tileset(int tileSize, int divs, QObject *parent=NULL);
+    explicit IOTileset(QObject *parent=NULL);
+	IOTileset(Tileset *tileset, QObject *parent=NULL);
 
-	void setName(const QString &name);
-	QString getName() const;
-
-	void setAuthor(const QString &author);
-	QString getAuthor() const;
-
-	int getTileSize() const;
-	int getDivisions() const;
-
-	void addTile(Tile *tile);
-	void removeTile(Tile *tile);
-
-	int getNumTiles() const;
-	Tile* getTileById(int id) const;
-	Tile* getTileByIndex(int i) const;
+	bool save(const QString &file);
+	Tileset* load(const QString &file);
 
  private:
-	QString m_Name;
-	QString m_Author;
+	Tileset *m_Tileset;
 
-	int m_TileSize;
-	int m_Divs;
-
-	QVector<Tile*> m_Tiles;
 };
 
-#endif
+#endif // IOTILESET_H

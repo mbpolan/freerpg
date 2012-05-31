@@ -29,9 +29,9 @@ Tile::Tile(int id, int divs, const QPixmap &img, QObject *parent): QObject(paren
 	m_Delay=0;
 	m_Alpha=255;
 
-	m_BitMap.resize(divs+1);
+	m_BitMap.resize(divs);
 	for (int i=0; i<m_BitMap.size(); i++) {
-		m_BitMap[i].resize(divs+1);
+		m_BitMap[i].resize(divs);
 
 		for (int j=0; j<m_BitMap.size(); j++)
 		    m_BitMap[i][j]=Tile::OPEN;

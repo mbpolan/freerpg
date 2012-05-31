@@ -65,6 +65,10 @@ void Tileset::removeTile(Tile *tile) {
 	}
 }
 
+int Tileset::getNumTiles() const {
+	return m_Tiles.size();
+}
+
 Tile* Tileset::getTileById(int id) const {
 	for (int i=0; i<m_Tiles.size(); i++) {
 		if (m_Tiles[i]->getId()==id)
@@ -72,4 +76,8 @@ Tile* Tileset::getTileById(int id) const {
 	}
 
 	return NULL;
+}
+
+Tile* Tileset::getTileByIndex(int i) const {
+    return m_Tiles[i];
 }

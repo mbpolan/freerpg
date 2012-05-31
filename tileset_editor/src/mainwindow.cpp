@@ -20,7 +20,9 @@
 // mainwindow.cpp: definition of the MainWindow class.
 
 #include <QFileDialog>
+#include <QMessageBox>
 
+#include "iotileset.h"
 #include "mainwindow.h"
 #include "newdialog.h"
 
@@ -29,6 +31,7 @@
 MainWindow::MainWindow(QWidget *parent): QMainWindow(parent) {
 	ui=new Ui::MainWindow;
 	ui->setupUi(this);
+	m_Tileset=NULL;
 
 	// connect actions
 	connect(ui->actionNew, SIGNAL(triggered()), this, SLOT(onFileNew()));
@@ -56,6 +59,10 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent) {
 }
 
 MainWindow::~MainWindow() {
+	if (m_Tileset) {
+		delete m_Tileset;
+		m_Tileset=NULL;
+	}
 }
 
 void MainWindow::onFileNew() {
@@ -79,11 +86,43 @@ void MainWindow::onFileNew() {
 }
 
 void MainWindow::onFileOpen() {
+	QString path=QFileDialog::getOpenFileName(this, tr("Open Tileset"), tr("Tilesets (*.tls)"));
+	if (path.isNull() || path.isEmpty())
+		return;
+
+	IOTileset io;
+	if (!(m_Tileset=io.load(path)))
+		QMessageBox::critical(this, tr("Error"), tr("Unable to load tileset!"), QMessageBox::Ok);
+
+	else {
+		setWindowTitle(QString("FreeRPG Tileset Editor - ")+m_Tileset->getName());
+
+		ui->tileTree->clear();
+		ui->editor->setGrid(m_Tileset->getDivisions());
+
+		for (int i=0; i<m_Tileset->getNumTiles(); i++) {
+			Tile *t=m_Tileset->getTileByIndex(i);
+
+			QTreeWidgetItem *item=new QTreeWidgetItem(ui->tileTree);
+			item->setText(0, QString("%1").arg(t->getId()));
+			item->setIcon(1, QIcon(t->getImage()));
+
+			ui->tileTree->addTopLevelItem(item);
+		}
+
+		centralWidget()->setEnabled(true);
+	}
 
 }
 
 void MainWindow::onFileSave() {
+	QString path=QFileDialog::getSaveFileName(this, tr("Save Tileset"), "", tr("Tilesets (*.tls)"));
+	if (path.isNull() || path.isEmpty())
+		return;
 
+	IOTileset io(m_Tileset);
+	if (!io.save(path))
+		QMessageBox::information(this, tr("Error"), tr("Unable to save tileset!"), QMessageBox::Ok);
 }
 
 void MainWindow::onFileSaveAs() {

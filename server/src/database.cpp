@@ -17,36 +17,25 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// protocol.h: declaration of the Protocol class.
+// database.cpp: definition of the Database class.
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#include "database.h"
 
-#include <iostream>
-#include <vector>
+Database* Database::g_Instance=NULL;
 
-class Player;
+DatabaseError::DatabaseError(const std::string &msg): std::runtime_error(msg.c_str()) { }
 
-class Protocol {
+Database::Handle Database::instance() {
+	return Database::g_Instance;
+}
 
- public:
-	Protocol(int socket);
+void Database::close() {
+	if (Database::g_Instance)
+		delete Database::g_Instance;
 
-	void setPlayer(Player *player);
+	Database::g_Instance=NULL;
+}
 
-	bool verify();
-	std::pair<std::string, std::string> getCredentials();
-	void sendLoginResult(bool ok);
+Database::Database() {
 
-	void sendCharacterList(const std::vector<std::string> &lst);
-	std::string getCharacter();
-
-	void loop();
-
- private:
-	int m_Socket;
-
-	Player *m_Player;
-};
-
-#endif
+}

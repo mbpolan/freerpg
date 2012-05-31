@@ -26,18 +26,28 @@
 #include <stdexcept>
 #include <map>
 
+class ParseError: public std::runtime_error {
+
+ public:
+	explicit ParseError(const std::string &msg);
+};
+
 class ConfigFile {
 
  public:
-	static ConfigFile* instance() throw(std::runtime_error);
+	static ConfigFile* instance() throw(ParseError);
 
 	std::string getIPAddress() const;
 	int getPort() const;
 
- private:
-	ConfigFile(const std::string &file) throw(std::runtime_error);
+	std::string getStoreType() const;
+	std::string getSQLite3File() const;
 
-	void parse(const std::string &file) throw(std::runtime_error);
+ private:
+	ConfigFile(const std::string &file) throw(ParseError);
+
+	void parse(const std::string &file) throw(ParseError);
+	void parseStoreData(void *node) throw(ParseError);
 
 	std::map<std::string, std::string> m_ValueMap;
 

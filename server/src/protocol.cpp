@@ -20,11 +20,16 @@
 // protocol.cpp: definition of the Protocol class.
 
 #include "packet.h"
+#include "player.h"
 #include "protspec.h"
 #include "protocol.h"
 
 Protocol::Protocol(int socket) {
 	m_Socket=socket;
+}
+
+void Protocol::setPlayer(Player *player) {
+	m_Player=player;
 }
 
 bool Protocol::verify() {
@@ -71,6 +76,29 @@ void Protocol::sendLoginResult(bool ok) {
 	p.addByte(ProtSpec::ID_LOGIN);
 	p.addByte(ok ? ProtSpec::RES_OK : ProtSpec::RES_FAIL);
 	p.write(m_Socket);
+}
+
+void Protocol::sendCharacterList(const std::vector<std::string> &lst) {
+	Packet p;
+
+	p.addByte(ProtSpec::ID_CHARLIST);
+	p.addUint16(lst.size());
+
+	for (int i=0; i<lst.size(); i++)
+		p.addString(lst[i]);
+
+	p.write(m_Socket);
+}
+
+std::string Protocol::getCharacter() {
+	Packet p;
+	p.read(m_Socket);
+
+	char id=p.byte();
+	if (id!=ProtSpec::ID_CHARLIST)
+		return "";
+
+	return p.string();
 }
 
 void Protocol::loop() {

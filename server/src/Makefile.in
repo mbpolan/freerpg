@@ -44,8 +44,10 @@ CONFIG_CLEAN_FILES =
 CONFIG_CLEAN_VPATH_FILES =
 am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
-am_server_OBJECTS = server-configfile.$(OBJEXT) \
-	server-packet.$(OBJEXT) server-protocol.$(OBJEXT) \
+am_server_OBJECTS = server-account.$(OBJEXT) \
+	server-configfile.$(OBJEXT) server-database.$(OBJEXT) \
+	server-dbsqlite3.$(OBJEXT) server-packet.$(OBJEXT) \
+	server-player.$(OBJEXT) server-protocol.$(OBJEXT) \
 	server-server.$(OBJEXT) server-serversocket.$(OBJEXT) \
 	server-usermanager.$(OBJEXT)
 server_OBJECTS = $(am_server_OBJECTS)
@@ -152,8 +154,12 @@ top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
 server_SOURCES = \
+	account.cpp account.h \
 	configfile.cpp configfile.h \
+	database.cpp database.h \
+	dbsqlite3.cpp dbsqlite3.h \
 	packet.cpp packet.h \
+	player.cpp player.h \
 	protocol.cpp protocol.h \
 	protspec.h \
 	server.cpp \
@@ -161,7 +167,7 @@ server_SOURCES = \
 	usermanager.cpp usermanager.h
 
 server_CPPFLAGS = -Wall -Wno-sign-compare -g -I/usr/include/libxml2
-server_LDADD = -lxml2 -lboost_thread
+server_LDADD = -lxml2 -lboost_thread -lsqlite3
 all: all-am
 
 .SUFFIXES:
@@ -243,8 +249,12 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-account.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-configfile.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-database.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-dbsqlite3.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-packet.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-player.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-protocol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-serversocket.Po@am__quote@
@@ -264,6 +274,20 @@ distclean-compile:
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXXCOMPILE) -c -o $@ `$(CYGPATH_W) '$<'`
 
+server-account.o: account.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-account.o -MD -MP -MF $(DEPDIR)/server-account.Tpo -c -o server-account.o `test -f 'account.cpp' || echo '$(srcdir)/'`account.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-account.Tpo $(DEPDIR)/server-account.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='account.cpp' object='server-account.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-account.o `test -f 'account.cpp' || echo '$(srcdir)/'`account.cpp
+
+server-account.obj: account.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-account.obj -MD -MP -MF $(DEPDIR)/server-account.Tpo -c -o server-account.obj `if test -f 'account.cpp'; then $(CYGPATH_W) 'account.cpp'; else $(CYGPATH_W) '$(srcdir)/account.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-account.Tpo $(DEPDIR)/server-account.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='account.cpp' object='server-account.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-account.obj `if test -f 'account.cpp'; then $(CYGPATH_W) 'account.cpp'; else $(CYGPATH_W) '$(srcdir)/account.cpp'; fi`
+
 server-configfile.o: configfile.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-configfile.o -MD -MP -MF $(DEPDIR)/server-configfile.Tpo -c -o server-configfile.o `test -f 'configfile.cpp' || echo '$(srcdir)/'`configfile.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-configfile.Tpo $(DEPDIR)/server-configfile.Po
@@ -278,6 +302,34 @@ server-configfile.obj: configfile.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-configfile.obj `if test -f 'configfile.cpp'; then $(CYGPATH_W) 'configfile.cpp'; else $(CYGPATH_W) '$(srcdir)/configfile.cpp'; fi`
 
+server-database.o: database.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-database.o -MD -MP -MF $(DEPDIR)/server-database.Tpo -c -o server-database.o `test -f 'database.cpp' || echo '$(srcdir)/'`database.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-database.Tpo $(DEPDIR)/server-database.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='database.cpp' object='server-database.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-database.o `test -f 'database.cpp' || echo '$(srcdir)/'`database.cpp
+
+server-database.obj: database.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-database.obj -MD -MP -MF $(DEPDIR)/server-database.Tpo -c -o server-database.obj `if test -f 'database.cpp'; then $(CYGPATH_W) 'database.cpp'; else $(CYGPATH_W) '$(srcdir)/database.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-database.Tpo $(DEPDIR)/server-database.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='database.cpp' object='server-database.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-database.obj `if test -f 'database.cpp'; then $(CYGPATH_W) 'database.cpp'; else $(CYGPATH_W) '$(srcdir)/database.cpp'; fi`
+
+server-dbsqlite3.o: dbsqlite3.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-dbsqlite3.o -MD -MP -MF $(DEPDIR)/server-dbsqlite3.Tpo -c -o server-dbsqlite3.o `test -f 'dbsqlite3.cpp' || echo '$(srcdir)/'`dbsqlite3.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-dbsqlite3.Tpo $(DEPDIR)/server-dbsqlite3.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='dbsqlite3.cpp' object='server-dbsqlite3.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-dbsqlite3.o `test -f 'dbsqlite3.cpp' || echo '$(srcdir)/'`dbsqlite3.cpp
+
+server-dbsqlite3.obj: dbsqlite3.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-dbsqlite3.obj -MD -MP -MF $(DEPDIR)/server-dbsqlite3.Tpo -c -o server-dbsqlite3.obj `if test -f 'dbsqlite3.cpp'; then $(CYGPATH_W) 'dbsqlite3.cpp'; else $(CYGPATH_W) '$(srcdir)/dbsqlite3.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-dbsqlite3.Tpo $(DEPDIR)/server-dbsqlite3.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='dbsqlite3.cpp' object='server-dbsqlite3.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-dbsqlite3.obj `if test -f 'dbsqlite3.cpp'; then $(CYGPATH_W) 'dbsqlite3.cpp'; else $(CYGPATH_W) '$(srcdir)/dbsqlite3.cpp'; fi`
+
 server-packet.o: packet.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-packet.o -MD -MP -MF $(DEPDIR)/server-packet.Tpo -c -o server-packet.o `test -f 'packet.cpp' || echo '$(srcdir)/'`packet.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-packet.Tpo $(DEPDIR)/server-packet.Po
@@ -291,6 +343,20 @@ server-packet.obj: packet.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='packet.cpp' object='server-packet.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-packet.obj `if test -f 'packet.cpp'; then $(CYGPATH_W) 'packet.cpp'; else $(CYGPATH_W) '$(srcdir)/packet.cpp'; fi`
+
+server-player.o: player.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-player.o -MD -MP -MF $(DEPDIR)/server-player.Tpo -c -o server-player.o `test -f 'player.cpp' || echo '$(srcdir)/'`player.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-player.Tpo $(DEPDIR)/server-player.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='player.cpp' object='server-player.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-player.o `test -f 'player.cpp' || echo '$(srcdir)/'`player.cpp
+
+server-player.obj: player.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-player.obj -MD -MP -MF $(DEPDIR)/server-player.Tpo -c -o server-player.obj `if test -f 'player.cpp'; then $(CYGPATH_W) 'player.cpp'; else $(CYGPATH_W) '$(srcdir)/player.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-player.Tpo $(DEPDIR)/server-player.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='player.cpp' object='server-player.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-player.obj `if test -f 'player.cpp'; then $(CYGPATH_W) 'player.cpp'; else $(CYGPATH_W) '$(srcdir)/player.cpp'; fi`
 
 server-protocol.o: protocol.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-protocol.o -MD -MP -MF $(DEPDIR)/server-protocol.Tpo -c -o server-protocol.o `test -f 'protocol.cpp' || echo '$(srcdir)/'`protocol.cpp

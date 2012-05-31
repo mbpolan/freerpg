@@ -2,4 +2,8 @@
 <server>
 	<ip>127.0.0.1</ip>
 	<port>9090</port>
+	
+	<store type="sqlite3">
+		<file>database.db</file>
+	</store>
 </server>

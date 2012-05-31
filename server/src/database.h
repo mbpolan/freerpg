@@ -17,36 +17,39 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// protocol.h: declaration of the Protocol class.
+// database.h: declaration of the Database class.
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#ifndef DATABASE_H
+#define DATABASE_H
 
 #include <iostream>
-#include <vector>
+#include <stdexcept>
+#include <sqlite3.h>
 
-class Player;
+#include "account.h"
 
-class Protocol {
+class DatabaseError: public std::runtime_error {
 
  public:
-	Protocol(int socket);
+	explicit DatabaseError(const std::string &msg);
+};
 
-	void setPlayer(Player *player);
+class Database {
 
-	bool verify();
-	std::pair<std::string, std::string> getCredentials();
-	void sendLoginResult(bool ok);
+	typedef Database* const Handle;
 
-	void sendCharacterList(const std::vector<std::string> &lst);
-	std::string getCharacter();
+ public:
+	static Handle instance();
+	static void close();
 
-	void loop();
+	virtual Account* getAccountByName(const std::string &username)=0;
+	virtual Player* getPlayerByName(const std::string &name)=0;
 
- private:
-	int m_Socket;
+ protected:
+	Database();
 
-	Player *m_Player;
+	static Database *g_Instance;
+
 };
 
 #endif

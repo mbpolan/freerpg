@@ -17,36 +17,14 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// protocol.h: declaration of the Protocol class.
+// player.cpp: definition of the Player class.
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#include "player.h"
 
-#include <iostream>
-#include <vector>
+Player::Player(const std::string &name) {
+	m_Name=name;
+}
 
-class Player;
-
-class Protocol {
-
- public:
-	Protocol(int socket);
-
-	void setPlayer(Player *player);
-
-	bool verify();
-	std::pair<std::string, std::string> getCredentials();
-	void sendLoginResult(bool ok);
-
-	void sendCharacterList(const std::vector<std::string> &lst);
-	std::string getCharacter();
-
-	void loop();
-
- private:
-	int m_Socket;
-
-	Player *m_Player;
-};
-
-#endif
+std::string Player::getName() const {
+	return m_Name;
+}

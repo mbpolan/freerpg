@@ -24,15 +24,16 @@ package client;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.Graphics;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.net.UnknownHostException;
+import java.util.List;
 
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
@@ -104,6 +105,20 @@ public class LoginPane extends JPanel implements NetworkListener {
 	}
 	
 	@Override
+	public void onCharacterList(List<String> lst) {
+		NetworkManager mgr=NetworkManager.getInstance();
+		
+		ListDialog diag=new ListDialog("Characters", "Select your character", lst);
+		diag.setVisible(true);
+		
+		if (diag.accepted())
+			mgr.sendCharacter(diag.getSelected());
+		
+		else
+			mgr.terminate();
+	}
+	
+	@Override
 	protected void paintComponent(Graphics g) {
 		g.drawImage(bg.getImage(), 0, 0, null);
 		super.paintComponent(g);
@@ -143,7 +158,9 @@ public class LoginPane extends JPanel implements NetworkListener {
 	}
 	
 	private void create() {
-		setLayout(new BoxLayout(this, BoxLayout.PAGE_AXIS));
+		setLayout(new GridBagLayout());
+		GridBagConstraints c=new GridBagConstraints();
+		
 		JPanel ctr=new JPanel();
 		
 		GridLayout grid=new GridLayout(0, 2);
@@ -179,10 +196,12 @@ public class LoginPane extends JPanel implements NetworkListener {
 		ctr.setMaximumSize(ctr.getPreferredSize());
 		ctr.setAlignmentX(Component.CENTER_ALIGNMENT);
 		
-		add(Box.createVerticalGlue());
-		add(ctr);
-		add(Box.createVerticalGlue());
-		add(statusBar);
+		c.gridx=0;
+		c.gridy=0;
+		add(ctr, c);
+		
+		c.gridy=1;
+		add(statusBar, c);
 	}
 
 }

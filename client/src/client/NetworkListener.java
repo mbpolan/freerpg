@@ -21,6 +21,8 @@
 
 package client;
 
+import java.util.List;
+
 public interface NetworkListener {
 	
 	void onConnected();
@@ -29,4 +31,5 @@ public interface NetworkListener {
 	
 	void onVerification(boolean success);
 	void onAuthentication(boolean success);
+	void onCharacterList(List<String> lst);
 }

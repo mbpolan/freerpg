@@ -17,36 +17,28 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// protocol.h: declaration of the Protocol class.
+// dbsqlite3.h: declaration of the DBSqlite3 class.
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#ifndef DBSQLITE3_H
+#define DBSQLITE3_H
 
 #include <iostream>
-#include <vector>
 
-class Player;
+#include "database.h"
 
-class Protocol {
+class DBSqlite3: public Database {
 
  public:
-	Protocol(int socket);
+	static void use(const std::string &file) throw(DatabaseError);
 
-	void setPlayer(Player *player);
-
-	bool verify();
-	std::pair<std::string, std::string> getCredentials();
-	void sendLoginResult(bool ok);
-
-	void sendCharacterList(const std::vector<std::string> &lst);
-	std::string getCharacter();
-
-	void loop();
+	Account* getAccountByName(const std::string &username);
+	Player* getPlayerByName(const std::string &name);
 
  private:
-	int m_Socket;
+	DBSqlite3(const std::string &file) throw(DatabaseError);
+	~DBSqlite3();
 
-	Player *m_Player;
+	sqlite3 *m_Handle;
 };
 
 #endif

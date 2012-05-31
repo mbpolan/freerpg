@@ -24,6 +24,8 @@ package client;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class NetworkManager extends Thread {
 	
@@ -122,6 +124,24 @@ public class NetworkManager extends Thread {
 		}
 	}
 	
+	public void sendCharacter(String name) {
+		try {
+			Packet p=new Packet();
+			p.addByte(ProtSpec.ID_CHARLIST);
+			p.addString(name);
+			
+			p.write(socket);
+		}
+		
+		catch (IOException ex) {
+			try {
+				socket.close();
+			} 
+
+			catch (IOException e) { }
+		}
+	}
+	
 	private void handlePacket(Packet p) {
 		// get the header byte
 		byte header=p.getByte();
@@ -137,6 +157,16 @@ public class NetworkManager extends Thread {
 			case ProtSpec.ID_LOGIN: {
 				byte result=p.getByte();
 				listener.onAuthentication(result==ProtSpec.RES_OK);
+			} break;
+			
+			case ProtSpec.ID_CHARLIST: {
+				short count=p.getUint16();
+				List<String> lst=new ArrayList<String>();
+				
+				for (int i=0; i<count; i++)
+					lst.add(p.getString());
+				
+				listener.onCharacterList(lst);
 			} break;
 			
 			default: {

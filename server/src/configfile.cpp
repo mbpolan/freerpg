@@ -27,7 +27,9 @@
 
 ConfigFile* ConfigFile::g_Instance=NULL;
 
-ConfigFile* ConfigFile::instance() throw(std::runtime_error) {
+ParseError::ParseError(const std::string &msg): std::runtime_error(msg.c_str()) { }
+
+ConfigFile* ConfigFile::instance() throw(ParseError) {
 	if (!ConfigFile::g_Instance)
 		return new ConfigFile("config.xml");
 
@@ -49,28 +51,69 @@ int ConfigFile::getPort() const {
 	}
 }
 
-ConfigFile::ConfigFile(const std::string &file) throw(std::runtime_error) {
+std::string ConfigFile::getStoreType() const {
+	return m_ValueMap.find("store-type")->second;
+}
+
+std::string ConfigFile::getSQLite3File() const {
+	return m_ValueMap.find("sqlite3-file")->second;
+}
+
+ConfigFile::ConfigFile(const std::string &file) throw(ParseError) {
 	parse(file);
 }
 
-void ConfigFile::parse(const std::string &file) throw(std::runtime_error) {
+void ConfigFile::parse(const std::string &file) throw(ParseError) {
 	xmlDocPtr doc=xmlReadFile(file.c_str(), NULL, 0);
 	if (!doc)
-		throw std::runtime_error("Unable to open config file");
+		throw ParseError("Unable to open config file");
 
 	xmlNodePtr root=xmlDocGetRootElement(doc);
 	if (xmlStrcmp(root->name, (const xmlChar*) "server")!=0) {
 		xmlFreeDoc(doc);
-		throw std::runtime_error("Root element is unexpected");
+		throw ParseError("Root element is unexpected");
 	}
 
 	xmlNodePtr info=root->children;
 	while(info) {
 		const char *name=(const char*) info->name;
-		m_ValueMap[std::string(name)]=std::string((const char*) xmlNodeGetContent(info));
+
+		if (xmlStrcmp(info->name, (const xmlChar*) "store")==0)
+			parseStoreData(info);
+
+		else
+			m_ValueMap[std::string(name)]=std::string((const char*) xmlNodeGetContent(info));
 
 		info=info->next;
 	}
 
 	xmlFreeDoc(doc);
+}
+
+void ConfigFile::parseStoreData(void *node) throw(ParseError) {
+	xmlNodePtr n=(xmlNodePtr) node;
+
+	const char *ctype=(const char*) xmlGetProp(n, (const xmlChar*) "type");
+	if (!ctype)
+		throw ParseError("Missing \"type\" attribute for store tag");
+
+	std::string type=std::string(ctype);
+	if (type=="sqlite3") {
+		xmlNodePtr ptr=n->children;
+		bool found=false;
+
+		while(ptr) {
+			if (xmlStrcmp(ptr->name, (const xmlChar*) "file")==0) {
+				m_ValueMap["sqlite3-file"]=std::string((const char*) xmlNodeGetContent(ptr));
+				found=true;
+			}
+
+			ptr=ptr->next;
+		}
+
+		if (!found)
+			throw ParseError("SQLite3 store tag requires a single \"file\" child tag");
+	}
+
+	m_ValueMap["store-type"]=type;
 }

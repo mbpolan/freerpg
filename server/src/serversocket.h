@@ -25,6 +25,12 @@
 #include <iostream>
 #include <stdexcept>
 
+class SocketError: public std::runtime_error {
+
+ public:
+	explicit SocketError(const std::string &msg);
+};
+
 class ServerSocket {
 
  public:
@@ -45,9 +51,9 @@ class ServerSocket {
 	ServerSocket(const std::string &ip, int port);
 	~ServerSocket();
 
-	void bind() throw(std::runtime_error);
-	void listen() throw(std::runtime_error);
-	ClientData* accept() throw(std::runtime_error);
+	void bind() throw(SocketError);
+	void listen() throw(SocketError);
+	ClientData* accept() throw(SocketError);
 
  private:
 	std::string m_IP;

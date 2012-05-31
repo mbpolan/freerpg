@@ -79,7 +79,7 @@ public class Packet {
 		String str="";
 		
 		for (int i=0; i<length; i++)
-			str+=getByte();
+			str+=(char) getByte();
 		
 		return str;
 	}

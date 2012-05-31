@@ -28,6 +28,8 @@
 
 #include "serversocket.h"
 
+SocketError::SocketError(const std::string &msg): std::runtime_error(msg.c_str()) { };
+
 ServerSocket::ClientData::ClientData(const std::string &ip, int socket) {
 	m_IP=ip;
 	m_Socket=socket;
@@ -52,7 +54,7 @@ ServerSocket::~ServerSocket() {
 		close(m_Socket);
 }
 
-void ServerSocket::bind() throw(std::runtime_error) {
+void ServerSocket::bind() throw(SocketError) {
 	struct addrinfo hints, *list;
 
 	memset(&hints, 0, sizeof(hints));
@@ -64,7 +66,7 @@ void ServerSocket::bind() throw(std::runtime_error) {
 
 	int ok;
 	if ((ok=getaddrinfo(m_IP.c_str(), ss.str().c_str(), &hints, &list))!=0)
-		throw std::runtime_error("Unable to getaddrinfo");
+		throw SocketError("Unable to getaddrinfo");
 
 	struct addrinfo *p=list;
 	bool init=false;
@@ -97,21 +99,21 @@ void ServerSocket::bind() throw(std::runtime_error) {
 	freeaddrinfo(list);
 
 	if (!init)
-		throw std::runtime_error("Unable to bind to any interface");
+		throw SocketError("Unable to bind to any interface");
 }
 
-void ServerSocket::listen() throw(std::runtime_error) {
+void ServerSocket::listen() throw(SocketError) {
 	if (::listen(m_Socket, 10)<0)
-		throw std::runtime_error("Unable to listen");
+		throw SocketError("Unable to listen");
 }
 
-ServerSocket::ClientData* ServerSocket::accept() throw(std::runtime_error) {
+ServerSocket::ClientData* ServerSocket::accept() throw(SocketError) {
 	struct sockaddr_in client;
 	socklen_t len=sizeof(client);
 
 	int sock;
 	if ((sock=::accept(m_Socket, (struct sockaddr*) &client, &len))<0)
-		throw std::runtime_error("Accept failed");
+		throw SocketError("Accept failed");
 
 	return new ClientData("...", sock);
 }

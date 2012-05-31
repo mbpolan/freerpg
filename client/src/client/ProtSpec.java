@@ -30,6 +30,7 @@ public final class ProtSpec {
 	
 	public static final byte ID_PROTVER=(byte)		0xA0;
 	public static final byte ID_LOGIN=	(byte)		0xA1;
+	public static final byte ID_CHARLIST=(byte)		0xA2;
 	
 	private ProtSpec() { }
 }

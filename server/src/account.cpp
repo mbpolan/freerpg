@@ -17,36 +17,27 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// protocol.h: declaration of the Protocol class.
+// account.cpp: definition of the Account class.
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+#include "account.h"
 
-#include <iostream>
-#include <vector>
+Account::Account(const std::string &username, const std::string &password) {
+	m_Username=username;
+	m_Password=password;
+}
 
-class Player;
+void Account::addCharacter(const std::string &name) {
+	m_Characters.push_back(name);
+}
 
-class Protocol {
+std::vector<std::string> Account::getCharacters() const {
+	return m_Characters;
+}
 
- public:
-	Protocol(int socket);
+std::string Account::getUsername() const {
+	return m_Username;
+}
 
-	void setPlayer(Player *player);
-
-	bool verify();
-	std::pair<std::string, std::string> getCredentials();
-	void sendLoginResult(bool ok);
-
-	void sendCharacterList(const std::vector<std::string> &lst);
-	std::string getCharacter();
-
-	void loop();
-
- private:
-	int m_Socket;
-
-	Player *m_Player;
-};
-
-#endif
+std::string Account::getPassword() const {
+	return m_Password;
+}

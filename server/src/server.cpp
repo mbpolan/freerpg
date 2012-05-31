@@ -23,6 +23,8 @@
 #include <iostream>
 
 #include "configfile.h"
+#include "database.h"
+#include "dbsqlite3.h"
 #include "protocol.h"
 #include "serversocket.h"
 
@@ -33,17 +35,28 @@ void connectionHandler(ServerSocket::ClientData *client) {
 	Protocol *p=new Protocol(socket);
 	if (p->verify()) {
 		std::pair<std::string, std::string> login=p->getCredentials();
-		std::cout << "LOGIN: " << login.first << "/" << login.second << "\n";
+		Account *account=Database::instance()->getAccountByName(login.first);
 
-		// TODO: actual account system
-		if (login.first!="test" || login.second!="user") {
+		// try to load the user's account and verify it
+		if (!account || account->getPassword()!=login.second)
 			p->sendLoginResult(false);
-		}
 
 		else {
 			p->sendLoginResult(true);
+
+			// send the character list for this account
+			p->sendCharacterList(account->getCharacters());
+			std::string character=p->getCharacter();
+
+			// load the player
+			Player *player=Database::instance()->getPlayerByName(character);
+			p->setPlayer(player);
 			p->loop();
+
+			delete player;
 		}
+
+		delete account;
 	}
 
 	close(socket);
@@ -53,10 +66,21 @@ void connectionHandler(ServerSocket::ClientData *client) {
 }
 
 int main(int argc, char *argv[]) {
-	ConfigFile *cfg=ConfigFile::instance();
-	ServerSocket socket(cfg->getIPAddress(), cfg->getPort());
-
 	try {
+		ConfigFile *cfg=ConfigFile::instance();
+
+		// attempt to load the correct database driver
+		std::string db=cfg->getStoreType();
+
+		// sqlite3 database
+		if (db=="sqlite3")
+			DBSqlite3::use(cfg->getSQLite3File());
+
+		else
+			throw DatabaseError("The only supported databases are: sqlite3");
+
+		ServerSocket socket(cfg->getIPAddress(), cfg->getPort());
+
 		socket.bind();
 		socket.listen();
 
@@ -68,9 +92,20 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
-	catch (const std::runtime_error &e) {
-		std::cout << e.what() << "\n";
+	catch (const ParseError &e) {
+		std::cout << "[ConfigFile]: " << e.what() << "\n";
 	}
+
+	catch (const DatabaseError &e) {
+		std::cout << "[Database]: " << e.what() << "\n";
+	}
+
+	catch (const SocketError &e) {
+		std::cout << "[Socket]: " << e.what() << "\n";
+	}
+
+	// clean up
+	Database::close();
 
 	return 0;
 }

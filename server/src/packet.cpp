@@ -135,8 +135,6 @@ Packet::Result Packet::read(int fd) {
 		return DataCorrupt;
 	}
 
-	std::cout << "Size: " << size << "\n";
-
 	m_Size=size;
 	m_Pos=2;
 	

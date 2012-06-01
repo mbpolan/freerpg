@@ -17,45 +17,40 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// configfile.h: declaration of the ConfigFile class.
+// map.cpp: definition of the Map class.
 
-#ifndef CONFIGFILE_H
-#define CONFIGFILE_H
+#include "map.h"
+#include "tile.h"
 
-#include <iostream>
-#include <stdexcept>
-#include <map>
+Map::Map(int width, int height) {
+	m_Map.resize(width*height, NULL);
+	m_Width=width;
+	m_Height=height;
+}
 
-class ParseError: public std::runtime_error {
+Map::~Map() {
+	// then each tile itself
+	std::map<int, std::map<int, Tile*> >::iterator it;
+	for (it=m_Tilesets.begin(); it!=m_Tilesets.end(); ++it) {
+		for (int i=0; i<it->second.size(); i++)
+			delete it->second[i];
+	}
 
- public:
-	explicit ParseError(const std::string &msg);
-};
+	m_Tilesets.clear();
+}
 
-class ConfigFile {
+Tile* Map::getTile(int x, int y) const {
+	return m_Map[x*m_Width+y];
+}
 
- public:
-	static ConfigFile* instance() throw(ParseError);
 
-	std::string getIPAddress() const;
-	int getPort() const;
+void Map::addTilesetTile(int ts, Tile *tile) {
+	if (m_Tilesets.find(ts)==m_Tilesets.end())
+		m_Tilesets[ts]=std::map<int, Tile*>();
 
-	std::string getMapType() const;
-	std::string getXMLMapFile() const;
+	m_Tilesets[ts][tile->getId()]=tile;
+}
 
-	std::string getStoreType() const;
-	std::string getSQLite3File() const;
-
- private:
-	ConfigFile(const std::string &file) throw(ParseError);
-
-	void parse(const std::string &file) throw(ParseError);
-	void parseMapData(void *node) throw(ParseError);
-	void parseStoreData(void *node) throw(ParseError);
-
-	std::map<std::string, std::string> m_ValueMap;
-
-	static ConfigFile *g_Instance;
-};
-
-#endif
+void Map::putTile(int x, int y, int ts, int id) {
+	m_Map[x*m_Width+y]=m_Tilesets[ts][id];
+}

@@ -25,6 +25,9 @@
 #include "configfile.h"
 #include "database.h"
 #include "dbsqlite3.h"
+#include "map.h"
+#include "maploader.h"
+#include "maploaderxml.h"
 #include "protocol.h"
 #include "serversocket.h"
 
@@ -69,8 +72,12 @@ void connectionHandler(ServerSocket::ClientData *client) {
 }
 
 int main(int argc, char *argv[]) {
+	ConfigFile *cfg=NULL;
+	Map *map=NULL;
+	MapLoader *mloader=NULL;
+
 	try {
-		ConfigFile *cfg=ConfigFile::instance();
+		cfg=ConfigFile::instance();
 
 		// attempt to load the correct database driver
 		std::string db=cfg->getStoreType();
@@ -82,6 +89,22 @@ int main(int argc, char *argv[]) {
 		else
 			throw DatabaseError("The only supported databases are: sqlite3");
 
+		// load the map
+		std::string mtype=cfg->getMapType();
+
+		// xml map
+		if (mtype=="xml")
+			mloader=new MapLoaderXML(cfg->getXMLMapFile());
+
+		else
+			throw MapLoaderError("The only supported map types are: xml");
+
+		map=mloader->load();
+
+		delete mloader;
+		mloader=NULL;
+
+		// create a server socket
 		ServerSocket socket(cfg->getIPAddress(), cfg->getPort());
 
 		socket.bind();
@@ -107,7 +130,20 @@ int main(int argc, char *argv[]) {
 		std::cout << "[Socket]: " << e.what() << "\n";
 	}
 
+	catch (const MapLoaderError &e) {
+		std::cout << "[Map]: " << e.what() << "\n";
+	}
+
 	// clean up
+	if (cfg)
+		delete cfg;
+
+	if (map)
+		delete map;
+
+	if (mloader)
+		delete mloader;
+
 	Database::close();
 
 	return 0;

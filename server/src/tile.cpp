@@ -17,45 +17,19 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// configfile.h: declaration of the ConfigFile class.
+// tile.cpp: definition of the Tile class.
 
-#ifndef CONFIGFILE_H
-#define CONFIGFILE_H
+#include "tile.h"
 
-#include <iostream>
-#include <stdexcept>
-#include <map>
+Tile::Tile(int id, const Tile::BitMap &bmap) {
+	m_Id=id;
+	m_BitMap=bmap;
+}
 
-class ParseError: public std::runtime_error {
+int Tile::getId() const {
+	return m_Id;
+}
 
- public:
-	explicit ParseError(const std::string &msg);
-};
-
-class ConfigFile {
-
- public:
-	static ConfigFile* instance() throw(ParseError);
-
-	std::string getIPAddress() const;
-	int getPort() const;
-
-	std::string getMapType() const;
-	std::string getXMLMapFile() const;
-
-	std::string getStoreType() const;
-	std::string getSQLite3File() const;
-
- private:
-	ConfigFile(const std::string &file) throw(ParseError);
-
-	void parse(const std::string &file) throw(ParseError);
-	void parseMapData(void *node) throw(ParseError);
-	void parseStoreData(void *node) throw(ParseError);
-
-	std::map<std::string, std::string> m_ValueMap;
-
-	static ConfigFile *g_Instance;
-};
-
-#endif
+Tile::Bit Tile::getBit(int x, int y) const {
+	return m_BitMap[x][y];
+}

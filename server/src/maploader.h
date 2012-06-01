@@ -17,45 +17,27 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// configfile.h: declaration of the ConfigFile class.
+// maploader.h: declaration of MapLoader class.
 
-#ifndef CONFIGFILE_H
-#define CONFIGFILE_H
+#ifndef MAPLOADER_H
+#define MAPLOADER_H
 
 #include <iostream>
 #include <stdexcept>
-#include <map>
 
-class ParseError: public std::runtime_error {
+class Map;
+
+class MapLoaderError: public std::runtime_error {
 
  public:
-	explicit ParseError(const std::string &msg);
+	explicit MapLoaderError(const std::string &msg):
+		std::runtime_error(msg.c_str()) { }
 };
 
-class ConfigFile {
+class MapLoader {
 
  public:
-	static ConfigFile* instance() throw(ParseError);
-
-	std::string getIPAddress() const;
-	int getPort() const;
-
-	std::string getMapType() const;
-	std::string getXMLMapFile() const;
-
-	std::string getStoreType() const;
-	std::string getSQLite3File() const;
-
- private:
-	ConfigFile(const std::string &file) throw(ParseError);
-
-	void parse(const std::string &file) throw(ParseError);
-	void parseMapData(void *node) throw(ParseError);
-	void parseStoreData(void *node) throw(ParseError);
-
-	std::map<std::string, std::string> m_ValueMap;
-
-	static ConfigFile *g_Instance;
+	virtual Map* load() throw(MapLoaderError)=0;
 };
 
 #endif

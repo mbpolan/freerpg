@@ -51,6 +51,14 @@ int ConfigFile::getPort() const {
 	}
 }
 
+std::string ConfigFile::getMapType() const {
+	return m_ValueMap.find("map-type")->second;
+}
+
+std::string ConfigFile::getXMLMapFile() const {
+	return m_ValueMap.find("map-xml-file")->second;
+}
+
 std::string ConfigFile::getStoreType() const {
 	return m_ValueMap.find("store-type")->second;
 }
@@ -81,6 +89,9 @@ void ConfigFile::parse(const std::string &file) throw(ParseError) {
 		if (xmlStrcmp(info->name, (const xmlChar*) "store")==0)
 			parseStoreData(info);
 
+		else if (xmlStrcmp(info->name, (const xmlChar*) "map")==0)
+			parseMapData(info);
+
 		else
 			m_ValueMap[std::string(name)]=std::string((const char*) xmlNodeGetContent(info));
 
@@ -88,6 +99,34 @@ void ConfigFile::parse(const std::string &file) throw(ParseError) {
 	}
 
 	xmlFreeDoc(doc);
+}
+
+void ConfigFile::parseMapData(void *node) throw(ParseError) {
+	xmlNodePtr n=(xmlNodePtr) node;
+
+	const char *ctype=(const char*) xmlGetProp(n, (const xmlChar*) "type");
+	if (!ctype)
+		throw ParseError("Missing \"type\" attribute for map tag");
+
+	std::string type=std::string(ctype);
+	if (type=="xml") {
+		xmlNodePtr ptr=n->children;
+		bool found=false;
+
+		while(ptr) {
+			if (xmlStrcmp(ptr->name, (const xmlChar*) "file")==0) {
+				m_ValueMap["map-xml-file"]=std::string((const char*) xmlNodeGetContent(ptr));
+				found=true;
+			}
+
+			ptr=ptr->next;
+		}
+
+		if (!found)
+			throw ParseError("XML map tag requires a single \"file\" child tag");
+	}
+
+	m_ValueMap["map-type"]=type;
 }
 
 void ConfigFile::parseStoreData(void *node) throw(ParseError) {

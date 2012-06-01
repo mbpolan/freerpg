@@ -17,45 +17,28 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// configfile.h: declaration of the ConfigFile class.
+// maploaderxml.h: declaration of MapLoaderXML class.
 
-#ifndef CONFIGFILE_H
-#define CONFIGFILE_H
+#ifndef MAPLOADERXML_H
+#define MAPLOADERXML_H
 
 #include <iostream>
-#include <stdexcept>
-#include <map>
 
-class ParseError: public std::runtime_error {
+#include "maploader.h"
+#include "tilesetloader.h"
 
- public:
-	explicit ParseError(const std::string &msg);
-};
-
-class ConfigFile {
+class MapLoaderXML: public MapLoader {
 
  public:
-	static ConfigFile* instance() throw(ParseError);
+	MapLoaderXML(const std::string &file);
 
-	std::string getIPAddress() const;
-	int getPort() const;
-
-	std::string getMapType() const;
-	std::string getXMLMapFile() const;
-
-	std::string getStoreType() const;
-	std::string getSQLite3File() const;
+	Map* load() throw(MapLoaderError);
 
  private:
-	ConfigFile(const std::string &file) throw(ParseError);
+	void parseTilesetData(Map *map, void *node) throw(MapLoaderError, TilesetLoaderError);
+	void parseTileData(Map *map, void *node) throw(MapLoaderError);
 
-	void parse(const std::string &file) throw(ParseError);
-	void parseMapData(void *node) throw(ParseError);
-	void parseStoreData(void *node) throw(ParseError);
-
-	std::map<std::string, std::string> m_ValueMap;
-
-	static ConfigFile *g_Instance;
+	std::string m_File;
 };
 
 #endif

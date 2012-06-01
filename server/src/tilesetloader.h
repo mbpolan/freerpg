@@ -17,45 +17,56 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// configfile.h: declaration of the ConfigFile class.
+// tilesetloader.h: declaration of the TilesetLoader class.
 
-#ifndef CONFIGFILE_H
-#define CONFIGFILE_H
+#ifndef TILESETLOADER_H
+#define TILESETLOADER_H
 
+#include <fstream>
 #include <iostream>
 #include <stdexcept>
-#include <map>
 
-class ParseError: public std::runtime_error {
+#include "tile.h"
+
+class TilesetLoaderError: public std::runtime_error {
 
  public:
-	explicit ParseError(const std::string &msg);
+	explicit TilesetLoaderError(const std::string &msg);
 };
 
-class ConfigFile {
+class TilesetLoader {
 
  public:
-	static ConfigFile* instance() throw(ParseError);
+	class Header {
 
-	std::string getIPAddress() const;
-	int getPort() const;
+	 public:
+		Header(int tileSize=0, int divs=0);
 
-	std::string getMapType() const;
-	std::string getXMLMapFile() const;
+		int getTileSize() const;
+		int getDivisions() const;
 
-	std::string getStoreType() const;
-	std::string getSQLite3File() const;
+	 private:
+		int m_TileSize;
+		int m_Divisions;
+	};
+
+ public:
+	explicit TilesetLoader(const std::string &file) throw(TilesetLoaderError);
+	~TilesetLoader();
+
+	Header getHeader();
+	bool hasNext() const;
+	std::pair<int, Tile::BitMap> readTile();
 
  private:
-	ConfigFile(const std::string &file) throw(ParseError);
+	int readId();
+	Tile::BitMap readBitMap();
 
-	void parse(const std::string &file) throw(ParseError);
-	void parseMapData(void *node) throw(ParseError);
-	void parseStoreData(void *node) throw(ParseError);
+	std::ifstream m_File;
+	Header m_Header;
 
-	std::map<std::string, std::string> m_ValueMap;
-
-	static ConfigFile *g_Instance;
+	int m_Count;
+	int m_CurTile;
 };
 
 #endif

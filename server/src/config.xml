@@ -3,7 +3,11 @@
 	<ip>127.0.0.1</ip>
 	<port>9090</port>
 	
+	<map type="xml">
+		<file>content/map.xml</file>
+	</map>
+	
 	<store type="sqlite3">
-		<file>database.db</file>
+		<file>content/database.db</file>
 	</store>
 </server>

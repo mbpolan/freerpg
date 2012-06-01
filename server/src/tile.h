@@ -17,45 +17,33 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// configfile.h: declaration of the ConfigFile class.
+// tile.h: declaration of the Tile class.
 
-#ifndef CONFIGFILE_H
-#define CONFIGFILE_H
+#ifndef TILE_H
+#define TILE_H
 
-#include <iostream>
-#include <stdexcept>
-#include <map>
+#include <vector>
 
-class ParseError: public std::runtime_error {
+class Tile {
 
  public:
-	explicit ParseError(const std::string &msg);
-};
+	enum Bit {
+		CLOSED=		0,
+		OPEN=		1,
+		OVERDRAW=	2
+	};
 
-class ConfigFile {
+	typedef std::vector<std::vector<Tile::Bit> > BitMap;
 
  public:
-	static ConfigFile* instance() throw(ParseError);
+	Tile(int id, const BitMap &bmap);
 
-	std::string getIPAddress() const;
-	int getPort() const;
-
-	std::string getMapType() const;
-	std::string getXMLMapFile() const;
-
-	std::string getStoreType() const;
-	std::string getSQLite3File() const;
+	int getId() const;
+	Tile::Bit getBit(int x, int y) const;
 
  private:
-	ConfigFile(const std::string &file) throw(ParseError);
-
-	void parse(const std::string &file) throw(ParseError);
-	void parseMapData(void *node) throw(ParseError);
-	void parseStoreData(void *node) throw(ParseError);
-
-	std::map<std::string, std::string> m_ValueMap;
-
-	static ConfigFile *g_Instance;
+	int m_Id;
+	Tile::BitMap m_BitMap;
 };
 
 #endif

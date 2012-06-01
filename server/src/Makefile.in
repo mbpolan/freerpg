@@ -46,10 +46,12 @@ am__installdirs = "$(DESTDIR)$(bindir)"
 PROGRAMS = $(bin_PROGRAMS)
 am_server_OBJECTS = server-account.$(OBJEXT) \
 	server-configfile.$(OBJEXT) server-database.$(OBJEXT) \
-	server-dbsqlite3.$(OBJEXT) server-packet.$(OBJEXT) \
-	server-player.$(OBJEXT) server-protocol.$(OBJEXT) \
-	server-server.$(OBJEXT) server-serversocket.$(OBJEXT) \
-	server-usermanager.$(OBJEXT)
+	server-dbsqlite3.$(OBJEXT) server-engine.$(OBJEXT) \
+	server-map.$(OBJEXT) server-maploaderxml.$(OBJEXT) \
+	server-packet.$(OBJEXT) server-player.$(OBJEXT) \
+	server-protocol.$(OBJEXT) server-server.$(OBJEXT) \
+	server-serversocket.$(OBJEXT) server-tile.$(OBJEXT) \
+	server-tilesetloader.$(OBJEXT)
 server_OBJECTS = $(am_server_OBJECTS)
 server_DEPENDENCIES =
 DEFAULT_INCLUDES = -I.@am__isrc@
@@ -158,13 +160,18 @@ server_SOURCES = \
 	configfile.cpp configfile.h \
 	database.cpp database.h \
 	dbsqlite3.cpp dbsqlite3.h \
+	engine.cpp engine.h \
+	map.cpp map.h \
+	maploader.h \
+	maploaderxml.cpp maploader.h \
 	packet.cpp packet.h \
 	player.cpp player.h \
 	protocol.cpp protocol.h \
 	protspec.h \
 	server.cpp \
 	serversocket.cpp serversocket.h \
-	usermanager.cpp usermanager.h
+	tile.cpp tile.h \
+	tilesetloader.cpp tilesetloader.h 
 
 server_CPPFLAGS = -Wall -Wno-sign-compare -g -I/usr/include/libxml2
 server_LDADD = -lxml2 -lboost_thread -lsqlite3
@@ -253,12 +260,16 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-configfile.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-database.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-dbsqlite3.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-engine.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-map.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-maploaderxml.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-packet.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-player.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-protocol.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-server.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-serversocket.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-usermanager.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-tile.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/server-tilesetloader.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
@@ -330,6 +341,48 @@ server-dbsqlite3.obj: dbsqlite3.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-dbsqlite3.obj `if test -f 'dbsqlite3.cpp'; then $(CYGPATH_W) 'dbsqlite3.cpp'; else $(CYGPATH_W) '$(srcdir)/dbsqlite3.cpp'; fi`
 
+server-engine.o: engine.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-engine.o -MD -MP -MF $(DEPDIR)/server-engine.Tpo -c -o server-engine.o `test -f 'engine.cpp' || echo '$(srcdir)/'`engine.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-engine.Tpo $(DEPDIR)/server-engine.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='engine.cpp' object='server-engine.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-engine.o `test -f 'engine.cpp' || echo '$(srcdir)/'`engine.cpp
+
+server-engine.obj: engine.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-engine.obj -MD -MP -MF $(DEPDIR)/server-engine.Tpo -c -o server-engine.obj `if test -f 'engine.cpp'; then $(CYGPATH_W) 'engine.cpp'; else $(CYGPATH_W) '$(srcdir)/engine.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-engine.Tpo $(DEPDIR)/server-engine.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='engine.cpp' object='server-engine.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-engine.obj `if test -f 'engine.cpp'; then $(CYGPATH_W) 'engine.cpp'; else $(CYGPATH_W) '$(srcdir)/engine.cpp'; fi`
+
+server-map.o: map.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-map.o -MD -MP -MF $(DEPDIR)/server-map.Tpo -c -o server-map.o `test -f 'map.cpp' || echo '$(srcdir)/'`map.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-map.Tpo $(DEPDIR)/server-map.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='map.cpp' object='server-map.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-map.o `test -f 'map.cpp' || echo '$(srcdir)/'`map.cpp
+
+server-map.obj: map.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-map.obj -MD -MP -MF $(DEPDIR)/server-map.Tpo -c -o server-map.obj `if test -f 'map.cpp'; then $(CYGPATH_W) 'map.cpp'; else $(CYGPATH_W) '$(srcdir)/map.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-map.Tpo $(DEPDIR)/server-map.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='map.cpp' object='server-map.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-map.obj `if test -f 'map.cpp'; then $(CYGPATH_W) 'map.cpp'; else $(CYGPATH_W) '$(srcdir)/map.cpp'; fi`
+
+server-maploaderxml.o: maploaderxml.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-maploaderxml.o -MD -MP -MF $(DEPDIR)/server-maploaderxml.Tpo -c -o server-maploaderxml.o `test -f 'maploaderxml.cpp' || echo '$(srcdir)/'`maploaderxml.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-maploaderxml.Tpo $(DEPDIR)/server-maploaderxml.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='maploaderxml.cpp' object='server-maploaderxml.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-maploaderxml.o `test -f 'maploaderxml.cpp' || echo '$(srcdir)/'`maploaderxml.cpp
+
+server-maploaderxml.obj: maploaderxml.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-maploaderxml.obj -MD -MP -MF $(DEPDIR)/server-maploaderxml.Tpo -c -o server-maploaderxml.obj `if test -f 'maploaderxml.cpp'; then $(CYGPATH_W) 'maploaderxml.cpp'; else $(CYGPATH_W) '$(srcdir)/maploaderxml.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-maploaderxml.Tpo $(DEPDIR)/server-maploaderxml.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='maploaderxml.cpp' object='server-maploaderxml.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-maploaderxml.obj `if test -f 'maploaderxml.cpp'; then $(CYGPATH_W) 'maploaderxml.cpp'; else $(CYGPATH_W) '$(srcdir)/maploaderxml.cpp'; fi`
+
 server-packet.o: packet.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-packet.o -MD -MP -MF $(DEPDIR)/server-packet.Tpo -c -o server-packet.o `test -f 'packet.cpp' || echo '$(srcdir)/'`packet.cpp
 @am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-packet.Tpo $(DEPDIR)/server-packet.Po
@@ -400,19 +453,33 @@ server-serversocket.obj: serversocket.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-serversocket.obj `if test -f 'serversocket.cpp'; then $(CYGPATH_W) 'serversocket.cpp'; else $(CYGPATH_W) '$(srcdir)/serversocket.cpp'; fi`
 
-server-usermanager.o: usermanager.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-usermanager.o -MD -MP -MF $(DEPDIR)/server-usermanager.Tpo -c -o server-usermanager.o `test -f 'usermanager.cpp' || echo '$(srcdir)/'`usermanager.cpp
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-usermanager.Tpo $(DEPDIR)/server-usermanager.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='usermanager.cpp' object='server-usermanager.o' libtool=no @AMDEPBACKSLASH@
+server-tile.o: tile.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-tile.o -MD -MP -MF $(DEPDIR)/server-tile.Tpo -c -o server-tile.o `test -f 'tile.cpp' || echo '$(srcdir)/'`tile.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-tile.Tpo $(DEPDIR)/server-tile.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='tile.cpp' object='server-tile.o' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-usermanager.o `test -f 'usermanager.cpp' || echo '$(srcdir)/'`usermanager.cpp
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-tile.o `test -f 'tile.cpp' || echo '$(srcdir)/'`tile.cpp
 
-server-usermanager.obj: usermanager.cpp
-@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-usermanager.obj -MD -MP -MF $(DEPDIR)/server-usermanager.Tpo -c -o server-usermanager.obj `if test -f 'usermanager.cpp'; then $(CYGPATH_W) 'usermanager.cpp'; else $(CYGPATH_W) '$(srcdir)/usermanager.cpp'; fi`
-@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-usermanager.Tpo $(DEPDIR)/server-usermanager.Po
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='usermanager.cpp' object='server-usermanager.obj' libtool=no @AMDEPBACKSLASH@
+server-tile.obj: tile.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-tile.obj -MD -MP -MF $(DEPDIR)/server-tile.Tpo -c -o server-tile.obj `if test -f 'tile.cpp'; then $(CYGPATH_W) 'tile.cpp'; else $(CYGPATH_W) '$(srcdir)/tile.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-tile.Tpo $(DEPDIR)/server-tile.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='tile.cpp' object='server-tile.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-usermanager.obj `if test -f 'usermanager.cpp'; then $(CYGPATH_W) 'usermanager.cpp'; else $(CYGPATH_W) '$(srcdir)/usermanager.cpp'; fi`
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-tile.obj `if test -f 'tile.cpp'; then $(CYGPATH_W) 'tile.cpp'; else $(CYGPATH_W) '$(srcdir)/tile.cpp'; fi`
+
+server-tilesetloader.o: tilesetloader.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-tilesetloader.o -MD -MP -MF $(DEPDIR)/server-tilesetloader.Tpo -c -o server-tilesetloader.o `test -f 'tilesetloader.cpp' || echo '$(srcdir)/'`tilesetloader.cpp
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-tilesetloader.Tpo $(DEPDIR)/server-tilesetloader.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='tilesetloader.cpp' object='server-tilesetloader.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-tilesetloader.o `test -f 'tilesetloader.cpp' || echo '$(srcdir)/'`tilesetloader.cpp
+
+server-tilesetloader.obj: tilesetloader.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT server-tilesetloader.obj -MD -MP -MF $(DEPDIR)/server-tilesetloader.Tpo -c -o server-tilesetloader.obj `if test -f 'tilesetloader.cpp'; then $(CYGPATH_W) 'tilesetloader.cpp'; else $(CYGPATH_W) '$(srcdir)/tilesetloader.cpp'; fi`
+@am__fastdepCXX_TRUE@	$(am__mv) $(DEPDIR)/server-tilesetloader.Tpo $(DEPDIR)/server-tilesetloader.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='tilesetloader.cpp' object='server-tilesetloader.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(server_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o server-tilesetloader.obj `if test -f 'tilesetloader.cpp'; then $(CYGPATH_W) 'tilesetloader.cpp'; else $(CYGPATH_W) '$(srcdir)/tilesetloader.cpp'; fi`
 
 ID: $(HEADERS) $(SOURCES) $(LISP) $(TAGS_FILES)
 	list='$(SOURCES) $(HEADERS) $(LISP) $(TAGS_FILES)'; \

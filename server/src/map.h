@@ -17,45 +17,37 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// configfile.h: declaration of the ConfigFile class.
+// map.h: declaration of the Map class.
 
-#ifndef CONFIGFILE_H
-#define CONFIGFILE_H
+#ifndef MAP_H
+#define MAP_H
 
 #include <iostream>
-#include <stdexcept>
 #include <map>
+#include <vector>
 
-class ParseError: public std::runtime_error {
+class Tile;
 
- public:
-	explicit ParseError(const std::string &msg);
-};
-
-class ConfigFile {
+class Map {
 
  public:
-	static ConfigFile* instance() throw(ParseError);
+	~Map();
 
-	std::string getIPAddress() const;
-	int getPort() const;
-
-	std::string getMapType() const;
-	std::string getXMLMapFile() const;
-
-	std::string getStoreType() const;
-	std::string getSQLite3File() const;
+	Tile* getTile(int x, int y) const;
 
  private:
-	ConfigFile(const std::string &file) throw(ParseError);
+	Map(int width, int height);
 
-	void parse(const std::string &file) throw(ParseError);
-	void parseMapData(void *node) throw(ParseError);
-	void parseStoreData(void *node) throw(ParseError);
+	void addTilesetTile(int ts, Tile *tile);
+	void putTile(int x, int y, int ts, int id);
 
-	std::map<std::string, std::string> m_ValueMap;
+	int m_Width;
+	int m_Height;
+	std::map<int, std::map<int, Tile*> > m_Tilesets;
+	std::vector<Tile*> m_Map;
 
-	static ConfigFile *g_Instance;
+	friend class MapLoaderXML;
+
 };
 
 #endif

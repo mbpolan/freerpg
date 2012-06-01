@@ -42,7 +42,9 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-public class LoginPane extends JPanel implements NetworkListener {
+import client.TransitionListener.State;
+
+public class LoginPane extends JPanel implements LoginListener {
 	
 	private static final long serialVersionUID = 1L;
 	
@@ -52,12 +54,15 @@ public class LoginPane extends JPanel implements NetworkListener {
 	private JButton loginButton;
 	private ImageIcon bg;
 	private JLabel statusBar;
+	private TransitionListener transitioner;
 	
-	public LoginPane() {
+	public LoginPane(TransitionListener transitioner) {
 		create();
 		
 		setOpaque(false);
 		bg=new ImageIcon(LoginPane.class.getResource("bg.png"));
+		
+		this.transitioner=transitioner;
 	}
 
 	@Override
@@ -119,6 +124,11 @@ public class LoginPane extends JPanel implements NetworkListener {
 	}
 	
 	@Override
+	public void onTransition() {
+		transitioner.onStateTransition(State.LOGIN);
+	}
+	
+	@Override
 	protected void paintComponent(Graphics g) {
 		g.drawImage(bg.getImage(), 0, 0, null);
 		super.paintComponent(g);
@@ -142,7 +152,7 @@ public class LoginPane extends JPanel implements NetworkListener {
 		try {
 			NetworkManager mgr=new NetworkManager(host, port);
 			NetworkManager.setInstance(mgr);
-			mgr.setListener(this);
+			mgr.setLoginListener(this);
 			
 			mgr.start();
 		} 

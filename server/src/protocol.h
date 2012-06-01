@@ -25,6 +25,8 @@
 #include <iostream>
 #include <vector>
 
+#include "packet.h"
+
 class Player;
 
 class Protocol {
@@ -40,10 +42,13 @@ class Protocol {
 
 	void sendCharacterList(const std::vector<std::string> &lst);
 	std::string getCharacter();
+	void sendLoginComplete();
 
 	void loop();
 
  private:
+	void handlePacket(Packet &p);
+
 	int m_Socket;
 
 	Player *m_Player;

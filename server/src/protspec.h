@@ -32,6 +32,7 @@ const char RES_OK=				0x01;
 const char ID_PROTVER=			0xA0;
 const char ID_LOGIN=			0xA1;
 const char ID_CHARLIST=			0xA2;
+const char ID_LOGIN_COMPLETE=	0xA3;
 
 }
 

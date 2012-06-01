@@ -17,21 +17,16 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// ProtSpec.java: protocol specification.
+// TransitionListener.java: interface for transitioning between screens.
 
 package client;
 
-public final class ProtSpec {
+public interface TransitionListener {
 	
-	public static final byte PROT_VERSION=(byte)		0x01;
+	enum State {
+		LOGIN,
+		GAME
+	}
 	
-	public static final byte RES_FAIL=					0x00;
-	public static final byte RES_OK=					0x01;
-	
-	public static final byte ID_PROTVER=(byte)			0xA0;
-	public static final byte ID_LOGIN=	(byte)			0xA1;
-	public static final byte ID_CHARLIST=(byte)			0xA2;
-	public static final byte ID_LOGIN_COMPLETE=(byte)	0xA3;
-	
-	private ProtSpec() { }
+	void onStateTransition(State completed);
 }

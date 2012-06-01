@@ -33,7 +33,8 @@ public class NetworkManager extends Thread {
 	
 	private static NetworkManager instance=null;
 	
-	private NetworkListener listener;
+	private LoginListener loginListener;
+	private GameListener gameListener;
 	private Socket socket;
 	
 	public static void setInstance(NetworkManager mgr) {
@@ -45,12 +46,17 @@ public class NetworkManager extends Thread {
 	}
 	
 	public NetworkManager(String host, int port) throws UnknownHostException, IOException {
-		this.listener=null;
+		this.loginListener=null;
+		this.gameListener=null;
 		this.socket=new Socket(host, port);
 	}
 	
-	public void setListener(NetworkListener listener) {
-		this.listener=listener;
+	public void setLoginListener(LoginListener listener) {
+		this.loginListener=listener;
+	}
+	
+	public void setGameListener(GameListener listener) {
+		this.gameListener=listener;
 	}
 	
 	public void terminate() {
@@ -62,7 +68,7 @@ public class NetworkManager extends Thread {
 	}
 	
 	public void run() {
-		listener.onConnected();
+		loginListener.onConnected();
 		
 		Packet p=new Packet();
 		boolean loop=true;
@@ -86,7 +92,11 @@ public class NetworkManager extends Thread {
 		
 		catch (IOException e) { }
 		
-		listener.onDisconnected();
+		if (loginListener!=null)
+			loginListener.onDisconnected();
+		
+		if (gameListener!=null)
+			gameListener.onDisconnected();
 	}
 	
 	public void sendProtocolVersion() {
@@ -159,7 +169,7 @@ public class NetworkManager extends Thread {
 
 					@Override
 					public void run() {
-						listener.onVerification(result==ProtSpec.RES_OK);
+						loginListener.onVerification(result==ProtSpec.RES_OK);
 					}
 				});
 			} break;
@@ -172,7 +182,7 @@ public class NetworkManager extends Thread {
 
 					@Override
 					public void run() {
-						listener.onAuthentication(result==ProtSpec.RES_OK);
+						loginListener.onAuthentication(result==ProtSpec.RES_OK);
 					}
 				});
 				
@@ -189,7 +199,18 @@ public class NetworkManager extends Thread {
 
 					@Override
 					public void run() {
-						listener.onCharacterList(lst);
+						loginListener.onCharacterList(lst);
+					}
+				});
+				
+			} break;
+			
+			case ProtSpec.ID_LOGIN_COMPLETE: {
+				SwingUtilities.invokeLater(new Runnable() {
+
+					@Override
+					public void run() {
+						loginListener.onTransition();
 					}
 				});
 				

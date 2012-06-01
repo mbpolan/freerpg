@@ -54,6 +54,7 @@ void connectionHandler(ServerSocket::ClientData *client) {
 
 			// load the player
 			Player *player=Database::instance()->getPlayerByName(character);
+			p->sendLoginComplete();
 			p->setPlayer(player);
 			p->loop();
 

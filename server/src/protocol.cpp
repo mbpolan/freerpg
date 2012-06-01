@@ -90,6 +90,13 @@ void Protocol::sendCharacterList(const std::vector<std::string> &lst) {
 	p.write(m_Socket);
 }
 
+void Protocol::sendLoginComplete() {
+	Packet p;
+
+	p.addByte(ProtSpec::ID_LOGIN_COMPLETE);
+	p.write(m_Socket);
+}
+
 std::string Protocol::getCharacter() {
 	Packet p;
 	p.read(m_Socket);
@@ -102,5 +109,17 @@ std::string Protocol::getCharacter() {
 }
 
 void Protocol::loop() {
+	while(1) {
+		Packet p;
+		Packet::Result res=p.read(m_Socket);
+		if (res!=Packet::NoError)
+			break;
+
+		handlePacket(p);
+	}
+}
+
+void Protocol::handlePacket(Packet &p) {
+	char header=p.byte();
 
 }

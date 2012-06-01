@@ -26,11 +26,13 @@ import javax.swing.JApplet;
 import javax.swing.SwingUtilities;
 
 
-public class ClientApplet extends JApplet {
+public class ClientApplet extends JApplet implements TransitionListener {
 	
 	private static final long serialVersionUID = 1L;
 	
 	private LoginPane loginPane;
+	private GamePane gamePane;
+	private State state;
 	
 	public void init() {
 		try {
@@ -38,12 +40,15 @@ public class ClientApplet extends JApplet {
 
 				@Override
 				public void run() {
+					state=State.LOGIN;
 					setSize(new Dimension(640, 480));
 					
 					// the initial screen is the login pane
-					loginPane=new LoginPane();
-					
+					loginPane=new LoginPane(ClientApplet.this);
 					add(loginPane);
+					
+					gamePane=new GamePane(ClientApplet.this);
+					gamePane.setVisible(false);
 				}
 				
 			});
@@ -51,6 +56,36 @@ public class ClientApplet extends JApplet {
 		
 		catch (Exception ex) {
 			System.out.println(ex.getMessage());
+		}
+	}
+	
+	public void destroy() {
+		if (state==State.GAME) {
+			gamePane.terminate();
+			super.destroy();
+		}
+	}
+	
+	@Override
+	public void onStateTransition(State completed) {
+		if (completed==State.LOGIN){ 
+			// remove and hide the login screen
+			remove(loginPane);
+			loginPane.setVisible(false);
+			
+			// and replace it with the game screen instead
+			add(gamePane);
+			gamePane.setVisible(true);
+		}
+		
+		else {
+			// remove and hide the game screen
+			remove(gamePane);
+			gamePane.setVisible(false);
+			
+			// and replace it with the login screen
+			add(loginPane);
+			loginPane.setVisible(true);
 		}
 	}
 

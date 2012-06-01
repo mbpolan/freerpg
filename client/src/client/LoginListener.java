@@ -23,7 +23,7 @@ package client;
 
 import java.util.List;
 
-public interface NetworkListener {
+public interface LoginListener {
 	
 	void onConnected();
 	void onDisconnected();
@@ -32,4 +32,5 @@ public interface NetworkListener {
 	void onVerification(boolean success);
 	void onAuthentication(boolean success);
 	void onCharacterList(List<String> lst);
+	void onTransition();
 }

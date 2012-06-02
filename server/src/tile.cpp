@@ -21,9 +21,14 @@
 
 #include "tile.h"
 
-Tile::Tile(int id, const Tile::BitMap &bmap) {
+Tile::Tile(int tid, int id, const Tile::BitMap &bmap) {
+	m_TilesetId=tid;
 	m_Id=id;
 	m_BitMap=bmap;
+}
+
+int Tile::getTilesetId() const {
+	return m_TilesetId;
 }
 
 int Tile::getId() const {

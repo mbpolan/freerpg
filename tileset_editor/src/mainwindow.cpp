@@ -25,6 +25,7 @@
 #include "iotileset.h"
 #include "mainwindow.h"
 #include "newdialog.h"
+#include "propertiesdialog.h"
 
 #include "ui/ui_mainwindow.h"
 
@@ -45,6 +46,7 @@ MainWindow::MainWindow(QWidget *parent): QMainWindow(parent) {
 	connect(ui->actionAdd, SIGNAL(triggered()), this, SLOT(onTileAdd()));
 	connect(ui->actionRemove, SIGNAL(triggered()), this, SLOT(onTileRemove()));
 	connect(ui->actionApply_To_All, SIGNAL(triggered()), this, SLOT(onTileApplyAll()));
+	connect(ui->actionProperties, SIGNAL(triggered()), this, SLOT(onTileProperties()));
 
 	connect(ui->actionAbout, SIGNAL(triggered()), this, SLOT(onHelpAbout()));
 
@@ -81,6 +83,7 @@ void MainWindow::onFileNew() {
 		// allocate a new tileset
 		m_Tileset=new Tileset(diag.getTileSize(), diag.getSubdivisions(), this);
 		m_Tileset->setName(name);
+		m_Tileset->setAuthor(diag.getAuthor());
 
 		// update the editor's grid
 		ui->editor->setGrid(diag.getSubdivisions());
@@ -115,7 +118,7 @@ void MainWindow::onFileOpen() {
 		}
 
 		centralWidget()->setEnabled(true);
-		m_Modified=true;
+		m_Modified=false;
 		m_SavePath=path;
 	}
 
@@ -126,6 +129,8 @@ void MainWindow::onFileSave() {
 		IOTileset io(m_Tileset);
 		if (!io.save(m_SavePath))
 			QMessageBox::information(this, tr("Error"), tr("Unable to save tileset!"), QMessageBox::Ok);
+		else
+			m_Modified=false;
 	}
 
 	else
@@ -201,6 +206,19 @@ void MainWindow::onTileRemove() {
 void MainWindow::onTileApplyAll() {
 	ui->editor->fill();
 	m_Modified=true;
+}
+
+void MainWindow::onTileProperties() {
+	if (!m_Tileset)
+		return;
+
+	PropertiesDialog pd(m_Tileset->getAuthor(), m_Tileset->getName());
+	if (pd.exec()==QDialog::Accepted) {
+		m_Tileset->setAuthor(pd.getAuthor());
+		m_Tileset->setName(pd.getName());
+
+		m_Modified=true;
+	}
 }
 
 void MainWindow::onHelpAbout() {

@@ -17,43 +17,25 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// protocol.h: declaration of the Protocol class.
+// TileID.java: tile information container class.
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+package client;
 
-#include <iostream>
-#include <vector>
-
-#include "map.h"
-#include "packet.h"
-
-class Player;
-
-class Protocol {
-
- public:
-	Protocol(int socket);
-
-	void setPlayer(Player *player);
-
-	bool verify();
-	std::pair<std::string, std::string> getCredentials();
-	void sendLoginResult(bool ok);
-
-	void sendCharacterList(const std::vector<std::string> &lst);
-	std::string getCharacter();
-	void sendLoginComplete();
-	void sendMapUpdate(const Map::IDMap &area);
-
-	void loop();
-
- private:
-	void handlePacket(Packet &p);
-
-	int m_Socket;
-
-	Player *m_Player;
-};
-
-#endif
+public class TileID {
+	
+	private int tilesetId;
+	private int tileId;
+	
+	public TileID(int tilesetId, int tileId) {
+		this.tilesetId=tilesetId;
+		this.tileId=tileId;
+	}
+	
+	public int getTilesetId() {
+		return tilesetId;
+	}
+	
+	public int getTileId() {
+		return tileId;
+	}
+}

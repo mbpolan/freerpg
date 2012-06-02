@@ -60,7 +60,7 @@ public class LoginPane extends JPanel implements LoginListener {
 		create();
 		
 		setOpaque(false);
-		bg=new ImageIcon(LoginPane.class.getResource("bg.png"));
+		bg=new ImageIcon(LoginPane.class.getResource("content/bg.png"));
 		
 		this.transitioner=transitioner;
 	}

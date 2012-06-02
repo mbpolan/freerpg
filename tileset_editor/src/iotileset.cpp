@@ -19,11 +19,11 @@
  ***************************************************************************/
 // iotileset.cpp: definition of IOTileset class.
 
+#include <cstdio>
+#include <fstream>
 #include <QBuffer>
 #include <QByteArray>
-#include <QDataStream>
 #include <QDebug>
-#include <QFile>
 
 #include "iotileset.h"
 
@@ -38,34 +38,39 @@ IOTileset::IOTileset(Tileset *tileset, QObject *parent): QObject(parent) {
 }
 
 bool IOTileset::save(const QString &file) {
-	QFile f(file);
-	if (!f.open(QIODevice::WriteOnly))
+	FILE *out=fopen(file.toAscii(), "wb");
+	if (!out)
 		return false;
 
-	QDataStream out(&f);
-
-	// write the magic number
-	out.writeRawData(MAGIC_NUM, strlen(MAGIC_NUM));
+	fwrite(MAGIC_NUM, sizeof(char), strlen(MAGIC_NUM), out);
 
 	// write header data
 	std::string author=m_Tileset->getAuthor().toStdString();
 	std::string name=m_Tileset->getName().toStdString();
 
-	out << name.size();
-	out.writeRawData(name.c_str(), name.size());
+	int len=name.size();
+	fwrite(&len, sizeof(int), 1, out);
+	fwrite(name.c_str(), sizeof(char), name.size(), out);
 
-	out << author.size();
-	out.writeRawData(author.c_str(), author.size());
+	len=author.size();
+	fwrite(&len, sizeof(int), 1, out);
+	fwrite(author.c_str(), sizeof(char), author.size(), out);
 
-	out << m_Tileset->getTileSize() << m_Tileset->getDivisions();
-	out << m_Tileset->getNumTiles();
+	int n=m_Tileset->getTileSize();
+	fwrite(&n, sizeof(int), 1, out);
+
+	n=m_Tileset->getDivisions();
+	fwrite(&n, sizeof(int), 1, out);
 
 	int count=m_Tileset->getNumTiles();
+	fwrite(&count, sizeof(int), 1, out);
+
 	for (int i=0; i<count; i++) {
 		Tile *t=m_Tileset->getTileByIndex(i);
 
 		// write the id
-		out << t->getId();
+		n=t->getId();
+		fwrite(&n, sizeof(int), 1, out);
 
 		// and pixel data
 		QPixmap img=t->getImage();
@@ -76,46 +81,47 @@ bool IOTileset::save(const QString &file) {
 		img.save(&buf, "PNG");
 		int size=bytes.size();
 
-		out << size;
-		out.writeRawData(bytes.data(), size);
+		fwrite(&size, sizeof(int), 1, out);
+		fwrite(bytes.data(), sizeof(char), size, out);
 
 		// write the bit map
 		Tile::BitMap bmap=t->getBitMap();
 		for (int j=0; j<bmap.size(); j++) {
 			for (int k=0; k<bmap.size(); k++) {
 				qint8 b=bmap[j][k];
-				out << b;
+				fputc(b, out);
 			}
 		}
 
 		// write the remaining meta data
 		qint8 anim=t->isAnimated();
-		out << anim;
+		fputc(anim, out);
 
 		// only write animation data if the tile is animated
 		if (anim) {
-			out << t->getNextFrame();
-			out << t->getDelay();
+		    n=t->getNextFrame();
+		    fwrite(&n, sizeof(int), 1, out);
+
+		    n=t->getDelay();
+		    fwrite(&n, sizeof(int), 1, out);
 		}
 
 		qint8 alpha=t->getAlpha();
-		out << alpha;
+		fputc(alpha, out);
 	}
 
-	f.close();
+	fclose(out);
 	return true;
 }
 
 Tileset* IOTileset::load(const QString &file) {
-	QFile f(file);
-	if (!f.open(QIODevice::ReadOnly))
-		return NULL;
-
-	QDataStream in(&f);
+	FILE *in=fopen(file.toAscii(), "rb");
+	if (!in)
+	    return false;
 
 	// read the magic number
 	char mn[strlen(MAGIC_NUM)+1];
-	in.readRawData(mn, strlen(MAGIC_NUM));
+	fread(mn, sizeof(char), strlen(MAGIC_NUM), in);
 	mn[strlen(MAGIC_NUM)]='\0';
 
 	if (strcmp(MAGIC_NUM, mn)!=0) {
@@ -125,41 +131,43 @@ Tileset* IOTileset::load(const QString &file) {
 
 	// read the name
 	int len;
-	in >> len;
+	fread(&len, sizeof(int), 1, in);
 
 	char cname[len+1];
-	in.readRawData(cname, len);
+	fread(cname, sizeof(char), len, in);
 	cname[len]='\0';
 
 	// read the author
-	in >> len;
+	fread(&len, sizeof(int), 1, in);
 
 	char cauthor[len+1];
-	in.readRawData(cauthor, len);
+	fread(cauthor, sizeof(char), len, in);
 	cauthor[len]='\0';
 
 	// read the remaining header info
 	int tileSize, divs, count;
-	in >> tileSize;
-	in >> divs;
-	in >> count;
+	fread(&tileSize, sizeof(int), 1, in);
+	fread(&divs, sizeof(int), 1, in);
+	fread(&count, sizeof(int), 1, in);
 
 	// allocate a new tileset for later
 	Tileset *ts=new Tileset(tileSize, divs);
+	ts->setAuthor(QString(cauthor));
+	ts->setName(QString(cname));
 	QStringList failures;
 
 	// read each tile
 	for (int i=0; i<count; i++) {
 		Tile *t=NULL;
 		int id;
-		in >> id;
+		fread(&id, sizeof(int), 1, in);
 
-		// read the length of the pixel data
-		in >> len;
+		// read pixel data length
+		fread(&len, sizeof(int), 1, in);
 
 		// and the pixel data itself
 		char pixels[len];
-		in.readRawData(pixels, len);
+		fread(pixels, sizeof(char), len, in);
 		QImage img=QImage::fromData((const uchar*) pixels, len, "PNG");
 
 		if (img.isNull()) {
@@ -173,30 +181,26 @@ Tileset* IOTileset::load(const QString &file) {
 		// read the bit map
 		for (int j=0; j<divs; j++) {
 			for (int k=0; k<divs; k++) {
-				qint8 b;
-				in >> b;
-
+				qint8 b=fgetc(in);
 				t->setBit(j, k, (Tile::Bit) b);
 			}
 		}
 
 		// read animation data
-		qint8 anim;
-		in >> anim;
+		qint8 anim=fgetc(in);
 		t->setIsAnimated(anim);
 
 		// read animation data if need be
 		if (anim) {
 			int nextFrame, delay;
-			in >> nextFrame;
-			in >> delay;
+			fread(&nextFrame, sizeof(int), 1, in);
+			fread(&delay, sizeof(int), 1, in);
 
 			t->setNextFrame(nextFrame);
 			t->setDelay(delay);
 		}
 
-		qint8 alpha;
-		in >> alpha;
+		qint8 alpha=fgetc(in);
 		t->setAlpha(alpha);
 
 		ts->addTile(t);

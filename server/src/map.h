@@ -31,8 +31,13 @@ class Tile;
 class Map {
 
  public:
+	typedef std::pair<char, short> TileID;
+	typedef std::vector<std::vector<TileID> > IDMap;
+
+ public:
 	~Map();
 
+	IDMap getAreaAround(int x, int y) const;
 	Tile* getTile(int x, int y) const;
 
  private:

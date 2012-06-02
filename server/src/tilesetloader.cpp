@@ -49,39 +49,42 @@ int TilesetLoader::Header::getDivisions() const {
 TilesetLoader::TilesetLoader(const std::string &file) throw(TilesetLoaderError) {
 	m_CurTile=1;
 
-	m_File.open(file.c_str());
-	if (!m_File.is_open())
+	m_File=fopen(file.c_str(), "rb");
+	if (!m_File)
 		throw TilesetLoaderError("Unable to open tileset");
 
 	char mn[strlen(MAGIC_NUM)+1];
-	m_File.read(mn, strlen(MAGIC_NUM));
 	mn[strlen(MAGIC_NUM)]='\0';
+	fread(mn, sizeof(char), strlen(MAGIC_NUM), m_File);
 
-	// make sure this is a valid TLS file
 	if (strcmp(mn, MAGIC_NUM)!=0)
 		throw TilesetLoaderError("This is not a TLS file");
 
 	// skip the tileset name
 	int len;
-	m_File >> len;
-	m_File.seekg(len, std::ios_base::cur);
+	fread(&len, sizeof(int), 1, m_File);
+	fseek(m_File, len, SEEK_CUR);
 
 	// skip the author's name
-	m_File >> len;
-	m_File.seekg(len, std::ios_base::cur);
+	fread(&len, sizeof(int), 1, m_File);
+	fseek(m_File, len, SEEK_CUR);
 
 	// read the header data
 	int tileSize, divs;
-	m_File >> tileSize;
-	m_File >> divs;
-	m_File >> m_Count;
+	fread(&tileSize, sizeof(int), 1, m_File);
+	fread(&divs, sizeof(int), 1, m_File);
+	fread(&m_Count, sizeof(int), 1, m_File);
+
+	std::cout << m_Count << "\n";
 
 	m_Header=TilesetLoader::Header(tileSize, divs);
 }
 
 TilesetLoader::~TilesetLoader() {
-	if (m_File.is_open())
-		m_File.close();
+	if (m_File) {
+		fclose(m_File);
+		m_File=NULL;
+	}
 }
 
 TilesetLoader::Header TilesetLoader::getHeader() {
@@ -102,7 +105,7 @@ std::pair<int, Tile::BitMap> TilesetLoader::readTile() {
 
 int TilesetLoader::readId() {
 	int id;
-	m_File >> id;
+	fread(&id, sizeof(int), 1, m_File);
 
 	return id;
 }
@@ -112,8 +115,8 @@ Tile::BitMap TilesetLoader::readBitMap() {
 
 	// skip the pixel data
 	int len;
-	m_File >> len;
-	m_File.seekg(len, std::ios_base::cur);
+	fread(&len, sizeof(int), 1, m_File);
+	fseek(m_File, len, SEEK_CUR);
 
 	// read the bitmap
 	Tile::BitMap bmap;
@@ -123,21 +126,16 @@ Tile::BitMap TilesetLoader::readBitMap() {
 		bmap[i].resize(size);
 
 		for (int j=0; j<size; j++) {
-			char b;
-			m_File >> b;
-
+			char b=fgetc(m_File);
 			bmap[i][j]=(Tile::Bit) b;
 		}
 	}
 
 	// skip the remaining meta data
-	char anim;
-	m_File >> anim;
-
+	char anim=fgetc(m_File);
 	if (anim)
-		m_File.seekg(sizeof(int)*2, std::ios_base::cur);
+		fseek(m_File, sizeof(int)*2, SEEK_CUR);
 
-	m_File.seekg(sizeof(char), std::ios_base::cur);
-
+	fseek(m_File, sizeof(char), SEEK_CUR);
 	return bmap;
 }

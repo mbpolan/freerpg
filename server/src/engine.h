@@ -22,6 +22,28 @@
 #ifndef ENGINE_H
 #define ENGINE_H
 
+#include <map>
 
+#include "map.h"
+#include "player.h"
+
+class Engine {
+
+ public:
+	static void create(Map *map);
+	static Engine* instance();
+
+	void addPlayer(Player *player);
+
+	Map* getMap() const;
+
+ private:
+	Engine(Map *map);
+
+	std::map<int, Player*> m_Players;
+	Map *m_Map;
+
+	static Engine *g_Instance;
+};
 
 #endif

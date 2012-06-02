@@ -20,6 +20,7 @@
 // map.cpp: definition of the Map class.
 
 #include "map.h"
+#include "protspec.h"
 #include "tile.h"
 
 Map::Map(int width, int height) {
@@ -37,6 +38,33 @@ Map::~Map() {
 	}
 
 	m_Tilesets.clear();
+}
+
+Map::IDMap Map::getAreaAround(int x, int y) const {
+	IDMap area;
+	area.resize(ProtSpec::TILES_HIGH);
+
+	int tlx=x-(ProtSpec::TILES_WIDE+1)/2;
+	int tly=y-(ProtSpec::TILES_HIGH+1)/2;
+
+	for (int i=0; i<ProtSpec::TILES_HIGH; i++) {
+		area[i].resize(ProtSpec::TILES_WIDE);
+
+		for (int j=0; j<ProtSpec::TILES_WIDE; j++) {
+			int tx=tlx+j;
+			int ty=tly+i;
+
+			if ((tx<0 || tx>=m_Width) || (ty<0 || ty>=m_Height))
+				area[i][j]=std::make_pair(126, 9);
+
+			else {
+				Tile *t=m_Map[tx*m_Width+ty];
+				area[i][j]=std::make_pair((char) t->getTilesetId(), (short) t->getId());
+			}
+		}
+	}
+
+	return area;
 }
 
 Tile* Map::getTile(int x, int y) const {

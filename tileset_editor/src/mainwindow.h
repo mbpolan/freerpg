@@ -47,6 +47,7 @@ class MainWindow: public QMainWindow {
 	void onTileAdd();
 	void onTileRemove();
 	void onTileApplyAll();
+	void onTileProperties();
 
 	void onHelpAbout();
 

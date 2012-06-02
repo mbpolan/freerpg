@@ -23,6 +23,9 @@ package client;
 
 public final class ProtSpec {
 	
+	public static final byte MAP_TILES_WIDE=			11;
+	public static final byte MAP_TILES_HIGH=			9;
+	
 	public static final byte PROT_VERSION=(byte)		0x01;
 	
 	public static final byte RES_FAIL=					0x00;
@@ -32,6 +35,8 @@ public final class ProtSpec {
 	public static final byte ID_LOGIN=	(byte)			0xA1;
 	public static final byte ID_CHARLIST=(byte)			0xA2;
 	public static final byte ID_LOGIN_COMPLETE=(byte)	0xA3;
+	
+	public static final byte ID_MAP_UPDATE=(byte)		0xA4;
 	
 	private ProtSpec() { }
 }

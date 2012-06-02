@@ -17,43 +17,48 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// protocol.h: declaration of the Protocol class.
+// Tile.java: the Tile class.
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+package client;
 
-#include <iostream>
-#include <vector>
+import static org.lwjgl.opengl.GL11.*;
+import org.newdawn.slick.opengl.Texture;
 
-#include "map.h"
-#include "packet.h"
-
-class Player;
-
-class Protocol {
-
- public:
-	Protocol(int socket);
-
-	void setPlayer(Player *player);
-
-	bool verify();
-	std::pair<std::string, std::string> getCredentials();
-	void sendLoginResult(bool ok);
-
-	void sendCharacterList(const std::vector<std::string> &lst);
-	std::string getCharacter();
-	void sendLoginComplete();
-	void sendMapUpdate(const Map::IDMap &area);
-
-	void loop();
-
- private:
-	void handlePacket(Packet &p);
-
-	int m_Socket;
-
-	Player *m_Player;
-};
-
-#endif
+public class Tile {
+	
+	private Texture texture;
+	private int id;
+	private int size;
+	private int divs;
+	private byte[] zMap;
+	
+	public Tile(int id, int tileSize, int divs, byte[] zMap, Texture texture) {
+		this.id=id;
+		this.size=64;
+		this.divs=divs;
+		this.zMap=zMap;
+		this.texture=texture;
+	}
+	
+	public int getId() {
+		return id;
+	}
+	
+	public void render(int x, int y) {
+		int tid=texture.getTextureID();
+		
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, tid);
+		
+		glBegin(GL_QUADS); {
+			glVertex2i(x, y);			glTexCoord2f(0.0f, 0.0f);
+			glVertex2i(x+size, y);		glTexCoord2f(1.0f, 0.0f);
+			glVertex2i(x+size, y+size);	glTexCoord2f(1.0f, 1.0f);
+			glVertex2i(x, y+size);		glTexCoord2f(0.0f, 1.0f);
+		}
+		glEnd();
+		
+		glDisable(GL_TEXTURE_2D);
+	}
+	
+}

@@ -25,6 +25,8 @@
 #include <iostream>
 #include <stdint.h>
 
+#include "map.h"
+
 #define PACKET_BUFFER_MAX	1024
 #define PACKET_STRING_MAX	PACKET_BUFFER_MAX-2
 
@@ -100,6 +102,8 @@ class Packet {
 	 * @param str The string to add.
 	 */
 	void addString(const std::string &str);
+
+	void addMapArea(const Map::IDMap &area);
 
 	/**
 	 * Returns the current byte under the read position, without incrementing

@@ -22,7 +22,7 @@
 #ifndef TILESETLOADER_H
 #define TILESETLOADER_H
 
-#include <fstream>
+#include <cstdio>
 #include <iostream>
 #include <stdexcept>
 
@@ -62,7 +62,7 @@ class TilesetLoader {
 	int readId();
 	Tile::BitMap readBitMap();
 
-	std::ifstream m_File;
+	FILE *m_File;
 	Header m_Header;
 
 	int m_Count;

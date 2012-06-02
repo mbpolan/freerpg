@@ -21,7 +21,11 @@
 
 package client;
 
+import java.util.List;
+
 public interface GameListener {
 
 	void onDisconnected();
+	
+	void onMapUpdate(TileID[][] map);
 }

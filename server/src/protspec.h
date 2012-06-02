@@ -24,6 +24,8 @@
 
 namespace ProtSpec {
 
+const int TILES_WIDE=			11;
+const int TILES_HIGH=			9;
 const char PROT_VERSION=		0x01;
 
 const char RES_FAIL=			0x00;
@@ -33,6 +35,8 @@ const char ID_PROTVER=			0xA0;
 const char ID_LOGIN=			0xA1;
 const char ID_CHARLIST=			0xA2;
 const char ID_LOGIN_COMPLETE=	0xA3;
+
+const char ID_MAP_UPDATE=		0xA4;
 
 }
 

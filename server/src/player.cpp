@@ -23,8 +23,17 @@
 
 Player::Player(const std::string &name) {
 	m_Name=name;
+	m_Protocol=NULL;
 }
 
 std::string Player::getName() const {
 	return m_Name;
+}
+
+void Player::setProtocol(Protocol *p) {
+	m_Protocol=p;
+}
+
+Protocol* Player::getProtocol() const {
+	return m_Protocol;
 }

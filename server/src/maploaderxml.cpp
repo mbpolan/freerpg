@@ -66,6 +66,7 @@ Map* MapLoaderXML::load() throw(MapLoaderError) {
 		ptr=ptr->next;
 	}
 
+	xmlFreeDoc(doc);
 	return map;
 }
 
@@ -88,7 +89,7 @@ void MapLoaderXML::parseTilesetData(Map *map, void *node) throw(MapLoaderError, 
 				std::pair<int, Tile::BitMap> data=loader.readTile();
 
 				// create a new tile object and add it to the file set
-				Tile *tile=new Tile(data.first, data.second);
+				Tile *tile=new Tile(id, data.first, data.second);
 				map->addTilesetTile(id, tile);
 			}
 		}

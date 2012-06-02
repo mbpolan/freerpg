@@ -25,6 +25,7 @@
 #include "configfile.h"
 #include "database.h"
 #include "dbsqlite3.h"
+#include "engine.h"
 #include "map.h"
 #include "maploader.h"
 #include "maploaderxml.h"
@@ -54,8 +55,12 @@ void connectionHandler(ServerSocket::ClientData *client) {
 
 			// load the player
 			Player *player=Database::instance()->getPlayerByName(character);
+			player->setProtocol(p);
+
 			p->sendLoginComplete();
 			p->setPlayer(player);
+
+			Engine::instance()->addPlayer(player);
 			p->loop();
 
 			delete player;
@@ -76,6 +81,7 @@ int main(int argc, char *argv[]) {
 	ConfigFile *cfg=NULL;
 	Map *map=NULL;
 	MapLoader *mloader=NULL;
+	Engine *engine=NULL;
 
 	try {
 		cfg=ConfigFile::instance();
@@ -104,6 +110,10 @@ int main(int argc, char *argv[]) {
 
 		delete mloader;
 		mloader=NULL;
+
+		// create the game engine
+		Engine::create(map);
+		engine=Engine::instance();
 
 		// create a server socket
 		ServerSocket socket(cfg->getIPAddress(), cfg->getPort());
@@ -144,6 +154,9 @@ int main(int argc, char *argv[]) {
 
 	if (mloader)
 		delete mloader;
+
+	if (engine)
+		delete engine;
 
 	Database::close();
 

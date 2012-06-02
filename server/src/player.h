@@ -24,6 +24,8 @@
 
 #include <iostream>
 
+#include "protocol.h"
+
 class Player {
 
  public:
@@ -31,8 +33,12 @@ class Player {
 
 	std::string getName() const;
 
+	void setProtocol(Protocol *p);
+	Protocol* getProtocol() const;
+
  private:
 	std::string m_Name;
+	Protocol *m_Protocol;
 };
 
 #endif

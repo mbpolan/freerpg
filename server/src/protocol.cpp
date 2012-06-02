@@ -97,6 +97,15 @@ void Protocol::sendLoginComplete() {
 	p.write(m_Socket);
 }
 
+
+void Protocol::sendMapUpdate(const Map::IDMap &area) {
+	Packet p;
+
+	p.addByte(ProtSpec::ID_MAP_UPDATE);
+	p.addMapArea(area);
+	p.write(m_Socket);
+}
+
 std::string Protocol::getCharacter() {
 	Packet p;
 	p.read(m_Socket);

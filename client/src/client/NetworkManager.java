@@ -157,7 +157,6 @@ public class NetworkManager extends Thread {
 	private void handlePacket(Packet p) {
 		// get the header byte
 		byte header=p.getByte();
-		System.out.println(""+(int) header);
 		
 		switch(header) {
 			
@@ -211,6 +210,20 @@ public class NetworkManager extends Thread {
 					@Override
 					public void run() {
 						loginListener.onTransition();
+					}
+				});
+				
+			} break;
+			
+			case ProtSpec.ID_MAP_UPDATE: {
+				
+				final TileID[][] mapArea=p.getMapArea();
+				
+				SwingUtilities.invokeLater(new Runnable() {
+					
+					@Override
+					public void run() {
+						gameListener.onMapUpdate(mapArea);
 					}
 				});
 				

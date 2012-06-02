@@ -41,16 +41,15 @@ public class ClientApplet extends JApplet implements TransitionListener {
 				@Override
 				public void run() {
 					state=State.LOGIN;
-					setSize(new Dimension(640, 480));
-					
+					setSize(new Dimension(704, 576));
+
 					// the initial screen is the login pane
 					loginPane=new LoginPane(ClientApplet.this);
 					add(loginPane);
-					
+
 					gamePane=new GamePane(ClientApplet.this);
 					gamePane.setVisible(false);
 				}
-				
 			});
 		}
 		
@@ -72,6 +71,8 @@ public class ClientApplet extends JApplet implements TransitionListener {
 			// remove and hide the login screen
 			remove(loginPane);
 			loginPane.setVisible(false);
+			
+			NetworkManager.getInstance().setGameListener(gamePane);
 			
 			// and replace it with the game screen instead
 			add(gamePane);

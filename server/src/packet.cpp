@@ -23,13 +23,14 @@
 #include <sys/socket.h>
 
 #include "packet.h"
+#include "protspec.h"
 
 Packet::Packet() {
 	clear();
 }
 
 void Packet::clear() {
-	m_Pos=2;
+	m_Pos=4;
 	m_Size=0;
 	
 }
@@ -64,6 +65,17 @@ void Packet::addString(const std::string &str) {
 	addUint16(str.size());
 	for (int i=0; i<str.size(); i++)
 		addByte(str[i]);
+}
+
+
+void Packet::addMapArea(const Map::IDMap &area) {
+	for (int i=0; i<ProtSpec::TILES_HIGH; i++) {
+		for (int j=0; j<ProtSpec::TILES_WIDE; j++) {
+			std::pair<char, short> id=area[i][j];
+			addByte(id.first);
+			addUint16(id.second);
+		}
+	}
 }
 
 uint8_t Packet::byte() {
@@ -105,8 +117,10 @@ bool Packet::write(int fd) {
 	// save the packet size to buffer
 	m_Buffer[0]=m_Size;
 	m_Buffer[1]=(m_Size >> 8);
+	m_Buffer[2]=(m_Size >> 16);
+	m_Buffer[3]=(m_Size >> 24);
 	
-	int sent=0, remaining=m_Size+2;
+	int sent=0, remaining=m_Size+4;
 	int n=0;
 	while(sent<m_Size) {
 		if ((n=send(fd, m_Buffer+sent, remaining, 0))==-1)
@@ -121,14 +135,14 @@ bool Packet::write(int fd) {
 
 Packet::Result Packet::read(int fd) {
 	// read the size first
-	int n=recv(fd, m_Buffer, 2, 0);
+	int n=recv(fd, m_Buffer, 4, 0);
 	if (n==-1 && errno==EWOULDBLOCK)
 		return TimedOut;
 	else if (n==0)
 		return Disconnected;
 	
-	int size=(m_Buffer[0] | (m_Buffer[1] >> 8));
-	int bytes=recv(fd, m_Buffer+2, size, 0);
+	int size=(m_Buffer[0] | (m_Buffer[1] << 8) | (m_Buffer[2] << 16) | (m_Buffer[3] << 24));
+	int bytes=recv(fd, m_Buffer+4, size, 0);
 	
 	if (bytes!=size || bytes<=0) {
 		std::cout << "read " << bytes << " was expecting " << size << std::endl;
@@ -136,7 +150,7 @@ Packet::Result Packet::read(int fd) {
 	}
 
 	m_Size=size;
-	m_Pos=2;
+	m_Pos=4;
 	
 	return NoError;
 }

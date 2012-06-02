@@ -20,3 +20,29 @@
 // engine.cpp: definition of the Engine class.
 
 #include "engine.h"
+
+Engine* Engine::g_Instance=NULL;
+
+void Engine::create(Map *map) {
+	Engine::g_Instance=new Engine(map);
+}
+
+Engine* Engine::instance() {
+	return Engine::g_Instance;
+}
+
+void Engine::addPlayer(Player *player) {
+	// TODO: actual player positioning
+	int x, y;
+	x=y=3;
+
+	player->getProtocol()->sendMapUpdate(m_Map->getAreaAround(x,y));
+}
+
+Map* Engine::getMap() const {
+	return m_Map;
+}
+
+Engine::Engine(Map *map) {
+	m_Map=map;
+}

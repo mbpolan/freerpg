@@ -19,7 +19,8 @@ SOURCES += \
     src/newdialog.cpp \
     src/tileset.cpp \
     src/tile.cpp \
-    src/iotileset.cpp
+    src/iotileset.cpp \
+    src/propertiesdialog.cpp
 
 HEADERS  += \
     src/mainwindow.h \
@@ -27,8 +28,10 @@ HEADERS  += \
     src/newdialog.h \
     src/tileset.h \
     src/tile.h \
-    src/iotileset.h
+    src/iotileset.h \
+    src/propertiesdialog.h
 
 FORMS += \
     src/ui/mainwindow.ui \
-    src/ui/newdialog.ui
+    src/ui/newdialog.ui \
+    src/ui/propertiesdialog.ui

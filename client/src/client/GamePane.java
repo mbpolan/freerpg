@@ -21,22 +21,18 @@
 
 package client;
 
+import static org.lwjgl.opengl.GL11.*;
+
 import java.awt.BorderLayout;
 import java.awt.Canvas;
 
 import javax.swing.JPanel;
-import org.lwjgl.BufferUtils;
+
 import org.lwjgl.LWJGLException;
-import org.lwjgl.LWJGLUtil;
-import org.lwjgl.Sys;
-import org.lwjgl.opengl.Display;
 import org.lwjgl.input.Keyboard;
-import org.lwjgl.input.Mouse;
-import org.lwjgl.opengl.GLContext;
+import org.lwjgl.opengl.Display;
 
 import client.TransitionListener.State;
-
-import static org.lwjgl.opengl.GL11.*;
 
 public class GamePane extends JPanel implements GameListener {
 	
@@ -46,9 +42,14 @@ public class GamePane extends JPanel implements GameListener {
 	private Thread renderThread;
 	private TransitionListener transitioner;
 	private boolean running;
+	private Object lock;
+	private TileID[][] mapArea;
 	
 	public GamePane(TransitionListener transitioner) {
 		this.transitioner=transitioner;
+		this.lock=new Object();
+		this.mapArea=null;
+		
 		setLayout(new BorderLayout());
 		
 		canvas=new Canvas() {
@@ -56,7 +57,6 @@ public class GamePane extends JPanel implements GameListener {
 			@Override
 			public void addNotify() {
 				super.addNotify();
-				System.out.println("NOTIFY");
 				init();
 			}
 
@@ -84,10 +84,39 @@ public class GamePane extends JPanel implements GameListener {
 		transitioner.onStateTransition(State.GAME);
 	}
 	
+	@Override
+	public void onMapUpdate(TileID[][] map) {
+		synchronized(lock) {
+			mapArea=map;
+			
+			//System.out.println("==== UPDATE ====");
+			
+			for (int i=0; i<mapArea.length; i++) {
+				for (int j=0; j<mapArea[i].length; j++) {
+					int tid=mapArea[i][j].getTileId();
+					System.out.print(tid+" ");
+				}
+				
+				System.out.println();
+			}
+		}
+	}
+	
 	private void loop() {
+		try {
+			TilesetManager mgr=TilesetManager.getInstance();
+			mgr.load();
+		}
+		
+		catch (GraphicsException ex) {
+			System.out.println(ex.getMessage());
+		}
+		
 		while(running) {
 			renderFrame();
+			
 			Display.update();
+			Display.sync(60);
 		}
 		
 		Display.destroy();
@@ -95,6 +124,26 @@ public class GamePane extends JPanel implements GameListener {
 	
 	private void renderFrame() {
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glLoadIdentity();
+		
+		TileID[][] area;
+		synchronized(lock) {
+			area=mapArea;
+		}
+		
+		if (area==null)
+			return;
+		
+		TilesetManager mgr=TilesetManager.getInstance();
+		for (int y=0; y<ProtSpec.MAP_TILES_HIGH; y++) {
+			for (int x=0; x<ProtSpec.MAP_TILES_WIDE; x++) {
+				TileID space=area[y][x];
+				
+				Tile t=mgr.getTileFor(space.getTilesetId(), space.getTileId());
+				if (t!=null)
+					t.render(x*64, y*64);
+			}
+		}
 	}
 	
 	private void initGL() {

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>603</width>
-    <height>514</height>
+    <height>553</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -32,7 +32,7 @@
         </property>
        </column>
       </widget>
-      <widget class="QWidget" name="">
+      <widget class="QWidget" name="layoutWidget">
        <layout class="QVBoxLayout" name="verticalLayout">
         <item>
          <widget class="TileEditor" name="editor" native="true">
@@ -202,13 +202,15 @@
    </widget>
    <widget class="QMenu" name="menuTile">
     <property name="title">
-     <string>Tile</string>
+     <string>Tileset</string>
     </property>
     <addaction name="actionAdd"/>
     <addaction name="actionRemove"/>
     <addaction name="actionRename"/>
     <addaction name="separator"/>
     <addaction name="actionApply_To_All"/>
+    <addaction name="separator"/>
+    <addaction name="actionProperties"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -284,6 +286,11 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionProperties">
+   <property name="text">
+    <string>Properties</string>
    </property>
   </action>
  </widget>

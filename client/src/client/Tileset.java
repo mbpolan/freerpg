@@ -17,43 +17,31 @@
  *   Free Software Foundation, Inc.,                                       *
  *   59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.             *
  ***************************************************************************/
-// protocol.h: declaration of the Protocol class.
+// Tileset.java: the Tileset class.
 
-#ifndef PROTOCOL_H
-#define PROTOCOL_H
+package client;
 
-#include <iostream>
-#include <vector>
+import java.util.HashMap;
+import java.util.Map;
 
-#include "map.h"
-#include "packet.h"
-
-class Player;
-
-class Protocol {
-
- public:
-	Protocol(int socket);
-
-	void setPlayer(Player *player);
-
-	bool verify();
-	std::pair<std::string, std::string> getCredentials();
-	void sendLoginResult(bool ok);
-
-	void sendCharacterList(const std::vector<std::string> &lst);
-	std::string getCharacter();
-	void sendLoginComplete();
-	void sendMapUpdate(const Map::IDMap &area);
-
-	void loop();
-
- private:
-	void handlePacket(Packet &p);
-
-	int m_Socket;
-
-	Player *m_Player;
-};
-
-#endif
+public class Tileset {
+	
+	private int tileSize;
+	private int divisions;
+	private Map<Integer, Tile> tiles;
+	
+	public Tileset(int tileSize, int divs) {
+		this.tileSize=tileSize;
+		this.divisions=divs;
+		this.tiles=new HashMap<Integer, Tile>();
+	}
+	
+	public void addTile(Tile tile) {
+		tiles.put(tile.getId(), tile);
+	}
+	
+	public Tile getTileById(int id) {
+		return tiles.get(id);
+	}
+	
+}

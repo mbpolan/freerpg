@@ -43,8 +43,12 @@ public class Packet {
 		clear();
 	}
 	
+	public int getSize() {
+		return size;
+	}
+	
 	public void clear() {
-		pos=2;
+		pos=4;
 		size=0;
 	}
 	
@@ -115,6 +119,23 @@ public class Packet {
 		return n;
 	}
 	
+	public TileID[][] getMapArea() {
+		TileID[][] area=new TileID[ProtSpec.MAP_TILES_HIGH][];
+		
+		for (int i=0; i<ProtSpec.MAP_TILES_HIGH; i++) {
+			area[i]=new TileID[ProtSpec.MAP_TILES_WIDE];
+			
+			for (int j=0; j<ProtSpec.MAP_TILES_WIDE; j++) {
+				byte tilesetId=getByte();
+				short tileId=getUint16();
+				
+				area[i][j]=new TileID(tilesetId, tileId);
+			}
+		}
+		
+		return area;
+	}
+	
 	/**
 	 * Clears this message's contents and reads in a new one from the assigned socket.
 	 * @param socket The socket to read from.
@@ -124,20 +145,12 @@ public class Packet {
 		InputStream in=socket.getInputStream();
 
 		// first read only the length to avoid reading in multiple packets
-		byte[] msg=new byte[2];
-
-		int read=0;
-		do {
-			int n=in.read(msg, read, 2);
-			if (n==-1)
-				throw new IOException("End of stream");
-			
-			read+=n;
-		}
-		while(read<2);
+		byte[] msg=new byte[4];
+		if (in.read(msg, 0, 4)==-1)
+			throw new IOException("End of stream");
 
 		// this is how many bytes the payload is
-		size=(msg[0] | msg[1] >> 8);
+		size=(msg[0] | (msg[1] << 8) | (msg[2] << 16) | (msg[3] << 24));
 
 		// corrupt packet?
 		if (size<0)
@@ -148,9 +161,9 @@ public class Packet {
 			return;
 		
 		// read the entire payload
-		read=0;
+		int read=0;
 		do {
-			int n=in.read(buffer, read+2, size-read);
+			int n=in.read(buffer, read+4, size-read);
 			if (n==-1)
 				throw new IOException("End of stream");
 			
@@ -169,11 +182,12 @@ public class Packet {
 			
 			// adjust the size of the packet
 			buffer[0]=(byte) size;
-			buffer[1]=(byte) (size << 8);
+			buffer[1]=(byte) (size >> 8);
+			buffer[2]=(byte) (size >> 16);
+			buffer[3]=(byte) (size >> 24);
 			
 			// we're all set -- send the data out
-			out.write(buffer, 0, size+2);
-			
+			out.write(buffer, 0, size+4);
 		}
 		
 		catch (IOException e) {

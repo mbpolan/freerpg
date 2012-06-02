@@ -36,12 +36,14 @@ class Tile {
 	typedef std::vector<std::vector<Tile::Bit> > BitMap;
 
  public:
-	Tile(int id, const BitMap &bmap);
+	Tile(int tid, int id, const BitMap &bmap);
 
+	int getTilesetId() const;
 	int getId() const;
 	Tile::Bit getBit(int x, int y) const;
 
  private:
+	int m_TilesetId;
 	int m_Id;
 	Tile::BitMap m_BitMap;
 };
